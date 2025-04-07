@@ -19,7 +19,7 @@ var credential = new DefaultAzureCredential();
 var builder = new ConfigurationBuilder();
 builder.AddAzureAppConfiguration(options =>
 {
-    options.Connect(new Uri("https://gh-triage-app-config-test.azconfig.io"), credential);
+    options.Connect(new Uri("https://gh-triage-app-config.azconfig.io"), credential);
 });
 
 var config = builder.Build();
