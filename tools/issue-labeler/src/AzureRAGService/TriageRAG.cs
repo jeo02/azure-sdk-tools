@@ -14,8 +14,8 @@ namespace AzureRagService
 {
     public class TriageRag
     {
-        private static ChatClient s_chatClient;
-        private static SearchIndexClient s_searchIndexClient;
+        private ChatClient s_chatClient;
+        private SearchIndexClient s_searchIndexClient;
         private ILogger<TriageRag> _logger;
 
         public TriageRag(ILogger<TriageRag> logger, ChatClient chatClient, SearchIndexClient searchIndexClient)
@@ -97,7 +97,6 @@ namespace AzureRagService
         /// <returns>The response from the OpenAI model.</returns>
         public async Task<string> SendMessageQnaAsync(string instructions, string message, BinaryData structure)
         {
-
             _logger.LogInformation($"\n\nWaiting for an Open AI response...");
 
             ChatCompletionOptions options = new ChatCompletionOptions()
