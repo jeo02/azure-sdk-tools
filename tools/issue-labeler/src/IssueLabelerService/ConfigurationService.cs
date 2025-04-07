@@ -16,7 +16,12 @@ namespace IssueLabelerService
             _config = config;
         }
 
-        public IConfigurationRoot GetConfiguration(string repository)
+        /// <summary>
+        /// Gets the configuration for a specific repository, falling back to the default configuration if the repository section does not exist.
+        /// </summary>
+        /// <param name="repository">The name of the repository.</param>
+        /// <returns>The merged configuration for the specified repository.</returns>
+        public IConfigurationRoot GetRepositoryConfiguration(string repository)
         {
             var defaultSection = _config.GetSection("defaults");
             var repoSection = _config.GetSection(repository);
@@ -42,6 +47,16 @@ namespace IssueLabelerService
             }
 
             return mergedConfig;
+        }
+
+        /// <summary>
+        /// Gets the entire app configuration.
+        /// </summary>
+        /// <returns>The entire app configuration.</returns>
+        public IConfigurationRoot GetConfiguration()
+        {
+            // Return the entire configuration if no specific repository is needed
+            return _config;
         }
     }
 }

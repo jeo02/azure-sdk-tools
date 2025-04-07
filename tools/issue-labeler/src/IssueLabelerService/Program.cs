@@ -12,6 +12,7 @@ using Azure.AI.OpenAI;
 using OpenAI.Chat;
 using Azure.Search.Documents.Indexes;
 using Microsoft.Extensions.Configuration;
+using IssueLabelerService;
 
 var credential = new DefaultAzureCredential();
 
@@ -21,16 +22,16 @@ builder.AddAzureAppConfiguration(options =>
     options.Connect(new Uri("https://gh-triage-app-config-test.azconfig.io"), credential);
 });
 
-var config2 = builder.Build();
+var config = builder.Build();
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices((context, services) => {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
-        var config = context.Configuration;
-        services.AddSingleton(config);
-        services.AddSingleton(config2);
+
+        var configService = new ConfigurationService(config);
+        services.AddSingleton<ConfigurationService>(configService);
 
         services.AddSingleton<ChatClient>(sp =>
         {

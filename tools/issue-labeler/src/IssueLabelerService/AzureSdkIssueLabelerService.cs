@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
 using Hubbup.MikLabelModel;
-using IssueLabeler.Shared.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using AzureRagService;
-using Azure.Identity;
 using System.Linq;
 
 namespace IssueLabelerService
@@ -26,24 +24,27 @@ namespace IssueLabelerService
         private readonly TriageRag _ragService;
         private static readonly ConcurrentDictionary<string, byte> CommonModelRepositories = new(StringComparer.OrdinalIgnoreCase);
         private static readonly ConcurrentDictionary<string, byte> InitializedRepositories = new(StringComparer.OrdinalIgnoreCase);
-        private static ConfigurationService _configurationService;
+        private ConfigurationService _configurationService;
         private IModelHolderFactoryLite ModelHolderFactory { get; }
         private ILabelerLite Labeler { get; }
         private string CommonModelRepositoryName { get; }
 
-        public AzureSdkIssueLabelerService(ILabelerLite labeler, IModelHolderFactoryLite modelHolderFactory, ILogger<AzureSdkIssueLabelerService> logger, TriageRag ragService, IConfigurationRoot config)
+        public AzureSdkIssueLabelerService(ILabelerLite labeler, IModelHolderFactoryLite modelHolderFactory, ILogger<AzureSdkIssueLabelerService> logger, TriageRag ragService, ConfigurationService configService)
         {
             _logger = logger;
             _ragService = ragService;
             ModelHolderFactory = modelHolderFactory;
             Labeler = labeler;
 
+            // Gets us the default config
+            var config = configService.GetConfiguration();
+
             CommonModelRepositoryName = config["default:CommonModelRepositoryName"];
 
             // Initialize the set of repositories that use the common model.
             ConvertRepoStringList(config["default:ReposUsingCommonModel"], CommonModelRepositories);
 
-            _configurationService = new ConfigurationService(config);
+            _configurationService = configService;
         }
 
         [Function("AzureSdkIssueLabelerService")]
@@ -60,7 +61,7 @@ namespace IssueLabelerService
                 return new BadRequestResult();
             }
 
-            var config = _configurationService.GetConfiguration($"{issue.RepositoryOwnerName}/{issue.RepositoryName}");
+            var config = _configurationService.GetRepositoryConfiguration($"{issue.RepositoryOwnerName}/{issue.RepositoryName}");
 
             IssueOutput result;
             try
