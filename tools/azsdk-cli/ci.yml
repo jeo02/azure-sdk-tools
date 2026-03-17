@@ -1,4 +1,10 @@
 # NOTE: Please refer to https://aka.ms/azsdk/engsys/ci-yaml before editing this file.
+parameters:
+  - name: RunBenchmarks
+    displayName: Run Benchmarks
+    type: boolean
+    default: false
+
 trigger:
   branches:
     include:
@@ -60,8 +66,9 @@ extends:
       - template: /tools/azsdk-cli/auto-documentation.yml
         parameters:
           ToolDirectory: $(ToolDir)
-      - template: /eng/common/pipelines/templates/jobs/benchmark-job.yml
-        parameters:
-          BenchmarkProject: tools/azsdk-cli/Azure.Sdk.Tools.Cli.Benchmarks
-          Parallelism: 5
+      - ${{ if eq(parameters.RunBenchmarks, true) }}:
+        - template: /eng/common/pipelines/templates/jobs/benchmark-job.yml
+          parameters:
+            BenchmarkProject: tools/azsdk-cli/Azure.Sdk.Tools.Cli.Benchmarks
+            Parallelism: 5
 
