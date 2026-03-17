@@ -60,7 +60,8 @@ public class CreateReleasePlanScenario : BenchmarkScenario
                         ["productTreeId"] = "f1a8c5d2-6e4b-4f7a-9c2d-8b5e1f3a6c9e",
                         ["specApiVersion"] = "2022-11-01-preview",
                         ["specPullRequestUrl"] = "https://github.com/Azure/azure-rest-api-specs/pull/38387",
-                        ["sdkReleaseType"] = "beta"
+                        ["sdkReleaseType"] = "beta",
+                        ["isTestReleasePlan"] = true
                     })
             ],
             forbiddenToolNames: ["azsdk_verify_setup"])

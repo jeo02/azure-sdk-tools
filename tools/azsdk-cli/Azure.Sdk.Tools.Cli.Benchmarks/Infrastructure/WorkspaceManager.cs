@@ -62,6 +62,9 @@ public class WorkspaceManager
         // Create worktree using the resolved SHA (safe for concurrent use)
         await CreateWorktreeAsync(barePath, worktreePath, commitSha, repo.SparseCheckoutPaths);
 
+        // Force test mode for the tools.
+        Environment.SetEnvironmentVariable("AZSDKTOOLS_AGENT_TESTING", "true");
+
         return new Workspace(workspaceRoot, repo.Name);
     }
 
