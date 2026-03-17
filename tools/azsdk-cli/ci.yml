@@ -78,8 +78,27 @@ extends:
         parameters:
           ToolDirectory: $(ToolDir)
       - ${{ if eq(parameters.RunBenchmarks, true) }}:
-        - template: /eng/pipelines/templates/jobs/benchmark-job.yml
-          parameters:
-            BenchmarkProject: tools/azsdk-cli/Azure.Sdk.Tools.Cli.Benchmarks
-            Parallelism: 5
+        - job: Run_Benchmark
+          displayName: 'Run Benchmark'
+          variables:
+            - group: 'AzSDK_Eval_Variable_group'
+          pool:
+            name: $(LINUXPOOL)
+            image: $(LINUXVMIMAGE)
+            os: linux
+          steps:
+          - checkout: self
+          - template: /eng/pipelines/templates/steps/install-dotnet.yml
+          - task: PowerShell@2
+            displayName: 'Run benchmarks'
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.SourcesDirectory)/tools/azsdk-cli/Azure.Sdk.Tools.Cli.Benchmarks'
+              pwsh: true
+              script: dotnet run -- run --all --parallel 5 --cleanup "always"
+            env:
+              DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+              DOTNET_CLI_TELEMETRY_OPTOUT: 1
+              DOTNET_MULTILEVEL_LOOKUP: 0
+              COPILOT_GITHUB_TOKEN: $(azuresdk-copilot-github-pat)
 
