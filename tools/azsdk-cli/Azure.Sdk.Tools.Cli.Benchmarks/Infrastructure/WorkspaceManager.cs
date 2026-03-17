@@ -155,7 +155,8 @@ public class WorkspaceManager
             await RunGitCommandAsync(barePath, "worktree", "add", "--no-checkout", worktreePath, commitSha, "--detach");
 
             // Configure sparse checkout in cone mode (includes root-level files automatically)
-            // Always include .github so copilot-instructions and other config files are available
+            // Always include .github, .vscode, and eng/common so copilot-instructions, mcp config,
+            // and shared scripts (e.g., MCP bootstrap) are available
             await RunGitCommandAsync(worktreePath, "sparse-checkout", "init", "--cone");
             var allPaths = new[] { ".github", ".vscode", "eng/common" }.Concat(sparseCheckoutPaths).Distinct();
             await RunGitCommandAsync(worktreePath,
