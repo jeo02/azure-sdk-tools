@@ -54,7 +54,9 @@ public class ToolCallValidator : IValidator
         CancellationToken cancellationToken = default)
     {
         if (ExpectedToolCalls.Count == 0)
+        {
             return Fail("No expected tool calls configured.");
+        }
 
         // Check for forbidden tool calls
         if (ForbiddenToolNames.Count > 0)
@@ -64,9 +66,11 @@ public class ToolCallValidator : IValidator
                 .ToList();
 
             if (forbiddenCalls.Count > 0)
+            {
                 return Fail(
                     $"Forbidden tool(s) were called: [{FormatNames(forbiddenCalls)}].",
                     $"Forbidden tools: [{string.Join(", ", ForbiddenToolNames)}]");
+            }
         }
 
         var expectedNames = ExpectedToolCalls.Select(tc => tc.ToolName).ToList();
@@ -79,10 +83,12 @@ public class ToolCallValidator : IValidator
             .ToList();
 
         if (unexpectedCalls.Count > 0)
+        {
             return Fail(
                 $"Unexpected tool(s) called: [{FormatNames(unexpectedCalls)}].",
                 $"Allowed: [{string.Join(", ", allowedNames)}]\n" +
                 $"Add unexpected tools to OptionalToolNames if they are acceptable.");
+        }
 
         // Filter to calls matching expected tools (suffix matching handles MCP prefixes)
         var requiredCalls = context.ToolCalls
@@ -92,19 +98,25 @@ public class ToolCallValidator : IValidator
         // Match each expected tool to an actual call (subsequence for ordered, set for unordered)
         var (matched, error) = FindMatches(requiredCalls, expectedNames, context);
         if (error != null)
+        {
             return error;
+        }
 
         // Check for extra calls to expected tools beyond what was configured
-        var extraError = CheckExtraCalls(context, expectedNames);
+        var extraError = CheckExtraCalls(context);
         if (extraError != null)
+        {
             return extraError;
+        }
 
         // Validate inputs for matched calls
         var inputErrors = ValidateInputs(matched);
         if (inputErrors.Count > 0)
+        {
             return Fail(
                 $"Tool inputs did not match: {inputErrors.Count} error(s).",
                 string.Join("\n", inputErrors));
+        }
 
         var orderStr = EnforceOrder ? " in correct order" : "";
         var inputStr = ExpectedToolCalls.Any(tc => tc.ExpectedInputs != null) ? " with expected inputs" : "";
@@ -116,8 +128,7 @@ public class ToolCallValidator : IValidator
     /// Tools that also appear in OptionalToolNames are exempt (retries allowed).
     /// </summary>
     private Task<ValidationResult>? CheckExtraCalls(
-        ValidationContext context,
-        List<string> expectedNames)
+        ValidationContext context)
     {
         var expectedCounts = ExpectedToolCalls
             .GroupBy(tc => tc.ToolName, StringComparer.OrdinalIgnoreCase)
@@ -127,13 +138,17 @@ public class ToolCallValidator : IValidator
         {
             // Extra calls are allowed if the tool is also optional
             if (OptionalToolNames.Any(o => string.Equals(o, expectedName, StringComparison.OrdinalIgnoreCase)))
+            {
                 continue;
+            }
 
             var actualCount = context.ToolCalls.Count(c => MatchesToolName(c.ToolName, expectedName));
             if (actualCount > maxCount)
+            {
                 return Fail(
                     $"Expected {maxCount} call(s) to '{expectedName}' but found {actualCount}.",
                     $"Add '{expectedName}' to OptionalToolNames if retries are acceptable.");
+            }
         }
 
         return null;
@@ -167,9 +182,13 @@ public class ToolCallValidator : IValidator
             for (int j = EnforceOrder ? searchStart : 0; j < requiredCalls.Count; j++)
             {
                 if (!EnforceOrder && used.Contains(j))
+                {
                     continue;
+                }
                 if (!MatchesToolName(requiredCalls[j].ToolName, expected.ToolName))
+                {
                     continue;
+                }
 
                 foundIndex = j;
                 break;
@@ -203,7 +222,9 @@ public class ToolCallValidator : IValidator
         {
             var expected = ExpectedToolCalls[i];
             if (expected.ExpectedInputs == null)
+            {
                 continue;
+            }
 
             var actualArgs = matchedCalls[i].GetArgsAsDictionary();
             foreach (var (key, expectedValue) in expected.ExpectedInputs)
@@ -215,7 +236,9 @@ public class ToolCallValidator : IValidator
                 }
 
                 if (!InputMatches(expectedValue, actualJson, out var actualStr))
+                {
                     errors.Add($"Tool '{expected.ToolName}': input '{key}' expected {FormatExpected(expectedValue)} but got '{actualStr}'.");
+                }
             }
         }
 
@@ -232,7 +255,9 @@ public class ToolCallValidator : IValidator
         actualStr = actual.ToString() ?? "";
 
         if (expected == null)
+        {
             return actual.ValueKind == JsonValueKind.Null;
+        }
 
         switch (expected)
         {
