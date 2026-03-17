@@ -78,7 +78,7 @@ extends:
         parameters:
           ToolDirectory: $(ToolDir)
       - ${{ if eq(parameters.RunBenchmarks, true) }}:
-        - template: /eng/common/pipelines/templates/jobs/benchmark-job.yml
+        - template: /eng/pipelines/templates/jobs/benchmark-job.yml
           parameters:
             BenchmarkProject: tools/azsdk-cli/Azure.Sdk.Tools.Cli.Benchmarks
             Parallelism: 5
