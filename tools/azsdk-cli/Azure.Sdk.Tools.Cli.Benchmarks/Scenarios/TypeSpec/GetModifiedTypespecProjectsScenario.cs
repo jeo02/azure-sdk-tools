@@ -64,6 +64,7 @@ public class GetModifiedTypespecProjectsScenario : BenchmarkScenario
                 new ExpectedToolCall("azsdk_get_modified_typespec_projects",
                     new Dictionary<string, object?>
                     {
+                        ["repoRootPath"] = "azure-rest-api-specs",
                         ["targetBranch"] = "main"
                     })
             ],
