@@ -73,10 +73,6 @@ extends:
           TargetRepoName: azure-rest-api-specs
           TargetRepoOwner: Azure
           TargetRepoCommit: main
-      CustomReleaseJobs:
-      - template: /tools/azsdk-cli/auto-documentation.yml
-        parameters:
-          ToolDirectory: $(ToolDir)
       - ${{ if eq(parameters.RunBenchmarks, true) }}:
         - job: Run_Benchmark
           displayName: 'Run Benchmark'
@@ -87,13 +83,23 @@ extends:
             image: $(LINUXVMIMAGE)
             os: linux
           steps:
-          - checkout: self
+          - checkout: none
+          - template: /eng/common/pipelines/templates/steps/sparse-checkout.yml
+            parameters:
+              SkipCheckoutNone: true
+              Repositories:
+                - Name: $(Build.Repository.Name)
+                  Commitish: $(Build.SourceVersion)
+                  WorkingDirectory: $(System.DefaultWorkingDirectory)/$(Build.Repository.Name)
+              Paths:
+                - 'tools/azsdk-cli/Azure.Sdk.Tools.Cli.Benchmarks/**'
+                - 'eng/common/**'
           - template: /eng/pipelines/templates/steps/install-dotnet.yml
           - task: PowerShell@2
             displayName: 'Run benchmarks'
             inputs:
               targetType: 'inline'
-              workingDirectory: '$(Build.SourcesDirectory)/tools/azsdk-cli/Azure.Sdk.Tools.Cli.Benchmarks'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/$(Build.Repository.Name)/tools/azsdk-cli/Azure.Sdk.Tools.Cli.Benchmarks'
               pwsh: true
               script: dotnet run -- run --all --parallel 5 --cleanup "always"
             env:
@@ -101,4 +107,7 @@ extends:
               DOTNET_CLI_TELEMETRY_OPTOUT: 1
               DOTNET_MULTILEVEL_LOOKUP: 0
               COPILOT_GITHUB_TOKEN: $(azuresdk-copilot-github-pat)
-
+      CustomReleaseJobs:
+      - template: /tools/azsdk-cli/auto-documentation.yml
+        parameters:
+          ToolDirectory: $(ToolDir)
