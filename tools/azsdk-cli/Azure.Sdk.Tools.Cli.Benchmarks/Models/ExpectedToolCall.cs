@@ -17,7 +17,7 @@ public class ExpectedToolCall
     /// String values use case-insensitive substring matching (to handle variable path prefixes).
     /// Numeric and boolean values use exact matching.
     /// </summary>
-    public IReadOnlyDictionary<string, object?>? ExpectedInputs { get; }
+    public IReadOnlyDictionary<string, object?> ExpectedInputs { get; }
 
     /// <summary>
     /// Creates an expected tool call that only validates the tool was called (no input checks).
@@ -25,7 +25,7 @@ public class ExpectedToolCall
     public ExpectedToolCall(string toolName)
     {
         ToolName = toolName;
-        ExpectedInputs = null;
+        ExpectedInputs = new Dictionary<string, object?>();
     }
 
     /// <summary>
