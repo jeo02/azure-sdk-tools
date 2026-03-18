@@ -23,7 +23,7 @@ public class SessionExecutor : IDisposable
     {
         var stopwatch = Stopwatch.StartNew();
         var toolCalls = new List<ToolCallRecord>();
-        var pendingTimestamps = new Stack<double>();
+        var pendingTimestamps = new Dictionary<string, double>();
 
         try
         {
@@ -56,12 +56,12 @@ public class SessionExecutor : IDisposable
                     OnPreToolUse = (input, invocation) =>
                     {
                         config.OnActivity?.Invoke($"Calling tool: {input.ToolName}");
-                        pendingTimestamps.Push(input.Timestamp);
+                        pendingTimestamps[input.ToolName] = input.Timestamp;
                         return Task.FromResult<PreToolUseHookOutput?>(null);
                     },
                     OnPostToolUse = (input, invocation) =>
                     {
-                        double? durationMs = pendingTimestamps.TryPop(out var startTs)
+                        double? durationMs = pendingTimestamps.TryGetValue(input.ToolName, out var startTs)
                             ? input.Timestamp - startTs
                             : null;
 
@@ -75,7 +75,8 @@ public class SessionExecutor : IDisposable
                             ToolArgs = input.ToolArgs,
                             ToolResult = input.ToolResult,
                             DurationMs = durationMs,
-                            McpServerName = mcpServerName
+                            McpServerName = mcpServerName,
+                            Timestamp = startTs,
                         });
                         return Task.FromResult<PostToolUseHookOutput?>(null);
                     }
