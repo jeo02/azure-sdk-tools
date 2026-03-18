@@ -73,7 +73,7 @@ extends:
           TargetRepoName: azure-rest-api-specs
           TargetRepoOwner: Azure
           TargetRepoCommit: main
-      - ${{ if eq(parameters.RunBenchmarks, true) }}:
+      - ${{ if and(eq(parameters.RunBenchmarks, true), ne(variables['Build.Reason'], 'PullRequest')) }}:
         - job: Run_Benchmark
           displayName: 'Run Benchmark'
           variables:
