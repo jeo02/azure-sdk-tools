@@ -98,7 +98,7 @@ public class Program
 
     private static void HandleListCommand(string[]? tags, string? repo)
     {
-        var repoFilter = ParseRepoFilter(repo);
+        var (repoFilter, _) = ParseRepoOption(repo);
         var scenarios = FilterScenarios(ScenarioDiscovery.DiscoverAll(), tags, repoFilter).ToList();
 
         if (scenarios.Count == 0)
@@ -320,29 +320,15 @@ public class Program
 
         if (!string.IsNullOrEmpty(repoFilter))
         {
-            scenarios = scenarios.Where(s => $"{s.Repo.Owner}/{s.Repo.Name}".Equals(repoFilter, StringComparison.OrdinalIgnoreCase)
-                || s.Repo.Name.Equals(repoFilter, StringComparison.OrdinalIgnoreCase));
+            scenarios = scenarios.Where(s => $"{s.Repo.Owner}/{s.Repo.Name}".Equals(repoFilter, StringComparison.OrdinalIgnoreCase));
         }
 
         return scenarios;
     }
 
     /// <summary>
-    /// Parses --repo for the list command (filtering only, ignores ref).
-    /// </summary>
-    private static string? ParseRepoFilter(string? repo)
-    {
-        if (string.IsNullOrEmpty(repo))
-        {
-            return null;
-        }
-
-        var (owner, name, _) = RepoConfig.ParseRepoString(repo);
-        return owner != null ? $"{owner}/{name}" : name;
-    }
-
-    /// <summary>
-    /// Parses --repo for the run command (filtering + optional ref override).
+    /// Parses --repo for filtering and optional ref override.
+    /// Accepts "Owner/Name", "Owner/Name:Ref", or "Name".
     /// </summary>
     private static (string? RepoFilter, Dictionary<string, string>? RefOverrides) ParseRepoOption(string? repo)
     {
@@ -361,23 +347,6 @@ public class Program
             {
                 [$"{owner}/{name}"] = gitRef
             };
-        }
-        else if (gitRef != null)
-        {
-            // Name-only with ref: resolve owner from matching scenarios
-            var matchingScenarios = ScenarioDiscovery.DiscoverAll()
-                .Where(s => s.Repo.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            if (matchingScenarios.Count > 0)
-            {
-                refOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var scenario in matchingScenarios)
-                {
-                    var key = $"{scenario.Repo.Owner}/{scenario.Repo.Name}";
-                    refOverrides.TryAdd(key, gitRef);
-                }
-            }
         }
 
         return (repoFilter, refOverrides);
