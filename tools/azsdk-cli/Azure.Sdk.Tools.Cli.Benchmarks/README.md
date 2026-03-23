@@ -68,8 +68,8 @@ dotnet run -- report /path/to/logs --output report.md
 |--------|-------------|---------|
 | `--model <model>` | Model to use for agent execution | `claude-opus-4.5` |
 | `--cleanup <policy>` | Cleanup policy: `always`, `never`, `on-success` | `on-success` |
-| `--repo <repo>` | Filter by repository. Append `:ref` to override the branch (see below) | — |
-| `--tag <tag>` | Filter scenarios by tag (repeatable) | — |
+| `--repo <repo>` | Filter by repository (when used with `run`, requires `--all`; also supported with `list`). Append `:ref` to override the branch (see below) | — |
+| `--tag <tag>` | Filter scenarios by tag (repeatable; when used with `run`, requires `--all`; also supported with `list`) | — |
 | `--report` | Generate a markdown report after the run completes | `false` |
 | `--output <path>` | Output file path for the report (report command only) | `report.md` in log dir |
 | `--parallel <n>` | Max concurrent scenarios | `1` |
