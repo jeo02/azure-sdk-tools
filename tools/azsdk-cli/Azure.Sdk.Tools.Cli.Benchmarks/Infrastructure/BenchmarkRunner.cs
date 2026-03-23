@@ -198,7 +198,7 @@ public class BenchmarkRunner : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private static RepoConfig ApplyRefOverride(RepoConfig repo, Dictionary<string, string>? overrides)
+    private static RepoConfig ApplyRefOverride(RepoConfig repo, Dictionary<string, string?>? overrides)
     {
         if (overrides == null)
         {
@@ -206,7 +206,7 @@ public class BenchmarkRunner : IDisposable
         }
 
         var key = $"{repo.Owner}/{repo.Name}";
-        if (overrides.TryGetValue(key, out var newRef))
+        if (overrides.TryGetValue(key, out var newRef) && newRef != null)
         {
             Console.WriteLine($"[Benchmark] Overriding ref for {key}: {repo.Ref} → {newRef}");
             return repo.WithRef(newRef);

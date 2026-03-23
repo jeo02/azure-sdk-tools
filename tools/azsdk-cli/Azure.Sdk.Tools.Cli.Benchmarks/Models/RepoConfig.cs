@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Text.RegularExpressions;
-
 namespace Azure.Sdk.Tools.Cli.Benchmarks.Models;
 
 /// <summary>
@@ -61,38 +59,26 @@ public class RepoConfig
     };
 
     /// <summary>
-    /// Parses a repo string in the format "Owner/Name:Ref", "Owner/Name", or "Name".
-    /// </summary>
-    /// <returns>A tuple of (owner, name, gitRef) where owner and gitRef may be null.</returns>
-    public static (string? Owner, string Name, string? Ref) ParseRepoString(string input)
-    {
-        if (!TryParseRepoString(input, out var result))
-        {
-            throw new ArgumentException($"Invalid repo format: '{input}'. Expected 'Owner/Name:Ref', 'Owner/Name', or 'Name'.", nameof(input));
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// Attempts to parse a repo string in the format "Owner/Name:Ref", "Owner/Name", or "Name".
+    /// Parses a repo string in the format "Owner/Name" or "Owner/Name:Ref".
     /// </summary>
     /// <returns>True if parsing succeeded; false otherwise.</returns>
-    public static bool TryParseRepoString(string input, out (string? Owner, string Name, string? Ref) result)
+    public static bool TryParse(string input, out string owner, out string name, out string? gitRef)
     {
-        result = default;
-        input = input.Trim();
-        var match = Regex.Match(input, @"^(?:(?<owner>[^/:\s]+)/)?(?<name>[^/:\s]+)(?::(?<ref>.+))?$");
-        if (!match.Success)
+        owner = name = string.Empty;
+        gitRef = null;
+
+        var colonIndex = input.IndexOf(':');
+        var repoKey = colonIndex >= 0 ? input[..colonIndex] : input;
+        gitRef = colonIndex >= 0 ? input[(colonIndex + 1)..] : null;
+
+        var parts = repoKey.Split('/');
+        if (parts.Length != 2 || string.IsNullOrWhiteSpace(parts[0]) || string.IsNullOrWhiteSpace(parts[1]))
         {
             return false;
         }
 
-        var owner = match.Groups["owner"].Success ? match.Groups["owner"].Value : null;
-        var name = match.Groups["name"].Value;
-        var gitRef = match.Groups["ref"].Success ? match.Groups["ref"].Value : null;
-
-        result = (owner, name, gitRef);
+        owner = parts[0];
+        name = parts[1];
         return true;
     }
 }

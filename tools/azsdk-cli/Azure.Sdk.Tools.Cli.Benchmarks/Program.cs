@@ -98,13 +98,8 @@ public class Program
 
     private static void HandleListCommand(string[]? tags, string[]? repos)
     {
-        var (repoFilters, _, error) = ParseRepoOptions(repos);
-        if (error != null)
-        {
-            Console.WriteLine($"Error: {error}");
-            return;
-        }
-        var scenarios = FilterScenarios(ScenarioDiscovery.DiscoverAll(), tags, repoFilters).ToList();
+        var repoOptions = ParseRepoOptions(repos);
+        var scenarios = FilterScenarios(ScenarioDiscovery.DiscoverAll(), tags, repoOptions).ToList();
 
         if (scenarios.Count == 0)
         {
@@ -160,18 +155,13 @@ public class Program
         }
 
         // Parse --repo for filtering and optional ref override
-        var (repoFilters, refOverrides, repoError) = ParseRepoOptions(repos);
-        if (repoError != null)
-        {
-            Console.WriteLine($"Error: {repoError}");
-            return 1;
-        }
+        var repoOptions = ParseRepoOptions(repos);
 
         var scenariosToRun = new List<BenchmarkScenario>();
 
         if (all)
         {
-            scenariosToRun.AddRange(FilterScenarios(ScenarioDiscovery.DiscoverAll(), tags, repoFilters));
+            scenariosToRun.AddRange(FilterScenarios(ScenarioDiscovery.DiscoverAll(), tags, repoOptions));
             if (scenariosToRun.Count == 0)
             {
                 var filters = new List<string>();
@@ -227,9 +217,9 @@ public class Program
             Console.WriteLine("  (overridden via --model flag)");
         }
         Console.WriteLine($"Parallelism: {parallel}");
-        if (refOverrides != null)
+        if (repoOptions != null)
         {
-            foreach (var (repoKey, gitRef) in refOverrides)
+            foreach (var (repoKey, gitRef) in repoOptions.Where(kv => kv.Value != null))
             {
                 Console.WriteLine($"Ref override: {repoKey} → {gitRef}");
             }
@@ -241,7 +231,7 @@ public class Program
             CleanupPolicy = cleanup,
             Model = model,
             Verbose = verbose,
-            RefOverrides = refOverrides
+            RefOverrides = repoOptions
         };
 
         var results = new ConcurrentBag<(BenchmarkScenario Scenario, BenchmarkResult Result)>();
@@ -321,55 +311,44 @@ public class Program
         return resultsList.All(r => r.Result.Passed) ? 0 : 1;
     }
 
-    private static IEnumerable<BenchmarkScenario> FilterScenarios(IEnumerable<BenchmarkScenario> scenarios, string[]? tags, string[]? repoFilters)
+    private static IEnumerable<BenchmarkScenario> FilterScenarios(IEnumerable<BenchmarkScenario> scenarios, string[]? tags, Dictionary<string, string?>? repoOptions)
     {
         if (tags is { Length: > 0 })
         {
             scenarios = scenarios.Where(s => tags.Any(t => s.Tags.Contains(t, StringComparer.OrdinalIgnoreCase)));
         }
 
-        if (repoFilters is { Length: > 0 })
+        if (repoOptions is { Count: > 0 })
         {
-            scenarios = scenarios.Where(s => repoFilters.Any(r => $"{s.Repo.Owner}/{s.Repo.Name}".Equals(r, StringComparison.OrdinalIgnoreCase)));
+            scenarios = scenarios.Where(s => repoOptions.ContainsKey($"{s.Repo.Owner}/{s.Repo.Name}"));
         }
 
         return scenarios;
     }
 
     /// <summary>
-    /// Parses --repo values for filtering and optional ref overrides.
-    /// Each value accepts "Owner/Name", "Owner/Name:Ref", or "Name".
-    /// Returns an error message if any repo string is invalid.
+    /// Parses --repo values into a dictionary keyed by "Owner/Name" with optional ref override values.
     /// </summary>
-    private static (string[]? RepoFilters, Dictionary<string, string>? RefOverrides, string? Error) ParseRepoOptions(string[]? repos)
+    private static Dictionary<string, string?>? ParseRepoOptions(string[]? repos)
     {
         if (repos is not { Length: > 0 })
         {
-            return (null, null, null);
+            return null;
         }
 
-        var repoFilters = new List<string>();
-        Dictionary<string, string>? refOverrides = null;
+        var result = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var repo in repos)
         {
-            if (!RepoConfig.TryParseRepoString(repo, out var parsed))
+            if (!RepoConfig.TryParse(repo, out var owner, out var name, out var gitRef))
             {
-                return (null, null, $"Invalid --repo format: '{repo}'. Expected 'Owner/Name:Ref', 'Owner/Name', or 'Name'.");
+                throw new ArgumentException($"Invalid --repo format: '{repo}'. Expected 'Owner/Name' or 'Owner/Name:Ref'.");
             }
 
-            var (owner, name, gitRef) = parsed;
-            var repoFilter = owner != null ? $"{owner}/{name}" : name;
-            repoFilters.Add(repoFilter);
-
-            if (gitRef != null && owner != null)
-            {
-                refOverrides ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                refOverrides[$"{owner}/{name}"] = gitRef;
-            }
+            result[$"{owner}/{name}"] = gitRef;
         }
 
-        return (repoFilters.ToArray(), refOverrides, null);
+        return result;
     }
 
     private static void PrintResult(BenchmarkResult result)

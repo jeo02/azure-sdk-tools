@@ -30,7 +30,7 @@ public class BenchmarkOptions
 
     /// <summary>
     /// Ref overrides keyed by "Owner/Name". When a scenario's repo matches,
-    /// the ref is replaced before workspace preparation.
+    /// the ref is replaced before workspace preparation. Null values mean no override.
     /// </summary>
-    public Dictionary<string, string>? RefOverrides { get; init; }
+    public Dictionary<string, string?>? RefOverrides { get; init; }
 }
