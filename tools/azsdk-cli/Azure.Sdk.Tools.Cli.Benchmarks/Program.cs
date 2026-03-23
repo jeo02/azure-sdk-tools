@@ -98,7 +98,12 @@ public class Program
 
     private static void HandleListCommand(string[]? tags, string? repo)
     {
-        var (repoFilter, _) = ParseRepoOption(repo);
+        var (repoFilter, _, error) = ParseRepoOption(repo);
+        if (error != null)
+        {
+            Console.WriteLine($"Error: {error}");
+            return;
+        }
         var scenarios = FilterScenarios(ScenarioDiscovery.DiscoverAll(), tags, repoFilter).ToList();
 
         if (scenarios.Count == 0)
@@ -155,7 +160,12 @@ public class Program
         }
 
         // Parse --repo for filtering and optional ref override
-        var (repoFilter, refOverrides) = ParseRepoOption(repo);
+        var (repoFilter, refOverrides, repoError) = ParseRepoOption(repo);
+        if (repoError != null)
+        {
+            Console.WriteLine($"Error: {repoError}");
+            return 1;
+        }
 
         var scenariosToRun = new List<BenchmarkScenario>();
 
@@ -329,15 +339,21 @@ public class Program
     /// <summary>
     /// Parses --repo for filtering and optional ref override.
     /// Accepts "Owner/Name", "Owner/Name:Ref", or "Name".
+    /// Returns an error message if the repo string is invalid.
     /// </summary>
-    private static (string? RepoFilter, Dictionary<string, string>? RefOverrides) ParseRepoOption(string? repo)
+    private static (string? RepoFilter, Dictionary<string, string>? RefOverrides, string? Error) ParseRepoOption(string? repo)
     {
         if (string.IsNullOrEmpty(repo))
         {
-            return (null, null);
+            return (null, null, null);
         }
 
-        var (owner, name, gitRef) = RepoConfig.ParseRepoString(repo);
+        if (!RepoConfig.TryParseRepoString(repo, out var parsed))
+        {
+            return (null, null, $"Invalid --repo format: '{repo}'. Expected 'Owner/Name:Ref', 'Owner/Name', or 'Name'.");
+        }
+
+        var (owner, name, gitRef) = parsed;
         var repoFilter = owner != null ? $"{owner}/{name}" : name;
 
         Dictionary<string, string>? refOverrides = null;
@@ -349,7 +365,7 @@ public class Program
             };
         }
 
-        return (repoFilter, refOverrides);
+        return (repoFilter, refOverrides, null);
     }
 
     private static void PrintResult(BenchmarkResult result)
