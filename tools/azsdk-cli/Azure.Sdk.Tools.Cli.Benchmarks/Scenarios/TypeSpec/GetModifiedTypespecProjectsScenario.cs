@@ -51,7 +51,6 @@ public class GetModifiedTypespecProjectsScenario : BenchmarkScenario
     /// <inheritdoc />
     public override string Prompt => """
         List the TypeSpec projects modified in my current branch compared to main.
-        My setup has already been verified, do not run azsdk_verify_setup.
         """;
 
     /// <inheritdoc />
@@ -67,7 +66,6 @@ public class GetModifiedTypespecProjectsScenario : BenchmarkScenario
                         ["repoRootPath"] = "azure-rest-api-specs",
                         ["targetBranch"] = "main"
                     })
-            ],
-            forbiddenToolNames: ["azsdk_verify_setup"])
+            ])
     ];
 }

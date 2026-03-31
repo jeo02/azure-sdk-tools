@@ -35,7 +35,7 @@ public class CreateReleasePlanScenario : BenchmarkScenario
     /// <inheritdoc />
     public override string Prompt => """
         Create a release plan for the Contoso Widget Manager, no need to get it afterwards only create.
-        My setup has already been verified, do not run azsdk_verify_setup. Here is all the context you need:
+        Here is all the context you need:
         TypeSpec project located at "specification/contosowidgetmanager/Contoso.WidgetManager".
         Use service tree ID "a7f2b8e4-9c1d-4a3e-b6f9-2d8e5a7c3b1f",
         product tree ID "f1a8c5d2-6e4b-4f7a-9c2d-8b5e1f3a6c9e",
@@ -62,7 +62,6 @@ public class CreateReleasePlanScenario : BenchmarkScenario
                         ["specPullRequestUrl"] = "https://github.com/Azure/azure-rest-api-specs/pull/38387",
                         ["sdkReleaseType"] = "beta"
                     })
-            ],
-            forbiddenToolNames: ["azsdk_verify_setup"])
+            ])
     ];
 }

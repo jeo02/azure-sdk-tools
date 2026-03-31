@@ -36,7 +36,6 @@ public class LinkNamespaceApprovalIssueScenario : BenchmarkScenario
     /// <inheritdoc />
     public override string Prompt => """
         Link namespace approval issue https://github.com/Azure/azure-sdk/issues/1234 to release plan 12345.
-        My setup has already been verified, do not run azsdk_verify_setup.
         """;
 
     /// <inheritdoc />
@@ -52,7 +51,6 @@ public class LinkNamespaceApprovalIssueScenario : BenchmarkScenario
                         ["releasePlanWorkItemId"] = 12345,
                         ["namespaceApprovalIssue"] = "https://github.com/Azure/azure-sdk/issues/1234"
                     })
-            ],
-            forbiddenToolNames: ["azsdk_verify_setup"])
+            ])
     ];
 }
