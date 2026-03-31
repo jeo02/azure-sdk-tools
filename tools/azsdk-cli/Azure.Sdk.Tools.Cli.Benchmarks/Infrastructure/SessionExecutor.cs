@@ -76,17 +76,14 @@ public class SessionExecutor : IDisposable
                             ? input.Timestamp - startTs
                             : null;
 
-                        var mcpServerName = input.ToolName.Contains("__")
-                            ? input.ToolName.Split("__", 2)[0]
-                            : null;
+                        bool isMcpTool = input.ToolName.Contains("azsdk_", StringComparison.OrdinalIgnoreCase);
 
                         toolCalls.Add(new ToolCallRecord
                         {
                             ToolName = input.ToolName,
-                            ToolArgs = input.ToolArgs,
-                            ToolResult = input.ToolResult,
+                            ToolArgs = isMcpTool ? input.ToolArgs : null,
+                            ToolResult = isMcpTool ? input.ToolResult : null,
                             DurationMs = durationMs,
-                            McpServerName = mcpServerName,
                         });
 
                         return Task.FromResult<PostToolUseHookOutput?>(null);
