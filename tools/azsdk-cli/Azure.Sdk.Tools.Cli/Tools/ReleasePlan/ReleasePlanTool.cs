@@ -303,7 +303,6 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     var targetReleaseMonthYear = commandParser.GetValue(targetReleaseOpt);
                     var serviceTreeId = commandParser.GetValue(serviceTreeIdOpt);
                     var productTreeId = commandParser.GetValue(productTreeIdOpt);
-                    var specApiVersion = commandParser.GetValue(apiVersionOpt);
                     var specPullRequestUrl = commandParser.GetValue(pullRequestOpt);
                     var sdkReleaseType = commandParser.GetValue(sdkReleaseTypeOpt);
                     var isTestReleasePlan = commandParser.GetValue(isTestReleasePlanOpt);
@@ -312,7 +311,6 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     return await CreateReleasePlan(
                         typeSpecProjectPath,
                         targetReleaseMonthYear,
-                        specApiVersion,
                         specPullRequestUrl,
                         sdkReleaseType,
                         serviceTreeId: serviceTreeId,
@@ -347,7 +345,6 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     return await UpdateReleasePlan(
                         typeSpecProjectPath: commandParser.GetValue(updateTypeSpecProjectPathOpt),
                         workItemId: commandParser.GetValue(workItemIdOpt),
-                        specApiVersion: commandParser.GetValue(updateApiVersionOpt),
                         sdkReleaseType: commandParser.GetValue(updateSdkReleaseTypeOpt),
                         specPullRequestUrl: commandParser.GetValue(pullRequestOpt),
                         serviceTreeId: commandParser.GetValue(optionalServiceTreeIdOpt),
@@ -510,24 +507,12 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
         /// </summary>
         [McpServerTool(Name = UpdateReleasePlanToolName), Description("Update an existing release plan. Updates spec PR URL, TypeSpec project path, API version, SDK release type, and optionally service/product IDs. " +
             "Runs TypeSpec metadata emitter to resolve package names and updates SDK details. If work item ID is not provided, finds the active release plan by TypeSpec project path or spec PR URL.")]
-        public async Task<ReleasePlanResponse> UpdateReleasePlan(string typeSpecProjectPath, string specApiVersion, string specPullRequestUrl, string sdkReleaseType = "", int workItemId = 0, string serviceTreeId = "", string productTreeId = "", CancellationToken ct = default)
+        public async Task<ReleasePlanResponse> UpdateReleasePlan(string typeSpecProjectPath, string specPullRequestUrl, string sdkReleaseType, int workItemId = 0, string serviceTreeId = "", string productTreeId = "", CancellationToken ct = default)
         {
             try
             {
-                // Validate inputs
-                var isValidApiVersion = ApiVersionRegex().Match(specApiVersion);
-                if (!isValidApiVersion.Success)
-                {
-                    return new ReleasePlanResponse { ResponseError = "Invalid API version format. Supported formats are: yyyy-MM-dd or yyyy-MM-dd-preview" };
-                }
-
                 // Resolve SDK release type: if not provided, infer from API version
-                sdkReleaseType = sdkReleaseType?.ToLower() ?? "";
-                if (string.IsNullOrEmpty(sdkReleaseType))
-                {
-                    sdkReleaseType = specApiVersion.Contains("preview", StringComparison.OrdinalIgnoreCase) ? "beta" : "stable";
-                    logger.LogInformation("SDK release type not provided. Inferred '{sdkReleaseType}' from API version '{specApiVersion}'.", sdkReleaseType, specApiVersion);
-                }
+                sdkReleaseType = sdkReleaseType.ToLower();
 
                 var sdkReleaseTypeMappings = new Dictionary<string, string>
                 {
@@ -640,10 +625,6 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     await devOpsService.UpdateSpecPullRequestAsync(releasePlan.WorkItemId, specPullRequestUrl, ct);
                     logger.LogInformation("Updated spec PR URL in release plan {WorkItemId}", releasePlan.WorkItemId);
                 }
-
-                // Update API version on the API spec child work item
-                await devOpsService.UpdateApiSpecVersionAsync(releasePlan.WorkItemId, specApiVersion, ct);
-                logger.LogInformation("Updated API version in release plan {WorkItemId}", releasePlan.WorkItemId);
 
                 // Run TypeSpec metadata emitter to get package names
                 List<PackageInfo>? resolvedPackages = null;
