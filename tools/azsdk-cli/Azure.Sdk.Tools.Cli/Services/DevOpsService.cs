@@ -836,11 +836,15 @@ namespace Azure.Sdk.Tools.Cli.Services
             {
                  { "ConfigType", "TypeSpec"},
                  { "ConfigPath", $"{typespecProjectRoot}/tspconfig.yaml" },
-                 { "ApiVersion", apiVersion },
                  { "SdkReleaseType", sdkReleaseType },
                  { "CreatePullRequest", "true" },
                  { "ReleasePlanWorkItemId", $"{workItemId}"}
             };
+
+            if (!string.IsNullOrEmpty(apiVersion))
+            {
+                templateParams["ApiVersion"] = apiVersion;
+            }
 
             if (!string.IsNullOrEmpty(sdkRepoBranch))
             {
