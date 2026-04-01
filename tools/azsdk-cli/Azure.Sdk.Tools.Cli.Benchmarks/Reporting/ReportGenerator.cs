@@ -85,7 +85,7 @@ public class ReportGenerator
     }
 
     private async Task<string> GenerateInBatchesAsync(
-        IEnumerable<BenchmarkLog> items, string dataLabel, CancellationToken cancellationToken)
+        IEnumerable<object> items, string dataLabel, CancellationToken cancellationToken)
     {
         string report = string.Empty;
         foreach (var batch in items.Chunk(BatchSize))
