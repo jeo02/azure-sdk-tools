@@ -505,7 +505,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
         /// or by TypeSpec project path/spec PR URL if work item ID is not provided.
         /// Runs the @azure-tools/typespec-metadata emitter to resolve package names and updates SDK details.
         /// </summary>
-        [McpServerTool(Name = UpdateReleasePlanToolName), Description("Update an existing release plan. Updates spec PR URL, TypeSpec project path, API version, SDK release type, and optionally service/product IDs. " +
+        [McpServerTool(Name = UpdateReleasePlanToolName), Description("Update an existing release plan. Updates spec PR URL, TypeSpec project path, SDK release type, and optionally service/product IDs. " +
             "Runs TypeSpec metadata emitter to resolve package names and updates SDK details. If work item ID is not provided, finds the active release plan by TypeSpec project path or spec PR URL.")]
         public async Task<ReleasePlanResponse> UpdateReleasePlan(string typeSpecProjectPath, string specPullRequestUrl, string sdkReleaseType = "", int workItemId = 0, string serviceTreeId = "", string productTreeId = "", CancellationToken ct = default)
         {
