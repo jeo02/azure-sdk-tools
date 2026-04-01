@@ -51,6 +51,7 @@ public class LinkNamespaceApprovalIssueScenario : BenchmarkScenario
                         ["releasePlanWorkItemId"] = 12345,
                         ["namespaceApprovalIssue"] = "https://github.com/Azure/azure-sdk/issues/1234"
                     })
-            ])
+            ],
+            optionalToolNames: ["azsdk_verify_setup"])
     ];
 }

@@ -56,6 +56,7 @@ public class CheckPublicRepoThenValidateScenario : BenchmarkScenario
                     {
                         ["typeSpecProjectPath"] = "specification/contosowidgetmanager/Contoso.WidgetManager"
                     })
-            ])
+            ],
+            optionalToolNames: ["azsdk_verify_setup"])
     ];
 }

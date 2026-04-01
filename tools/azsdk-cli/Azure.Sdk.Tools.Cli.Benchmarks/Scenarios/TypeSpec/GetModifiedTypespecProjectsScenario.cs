@@ -66,6 +66,7 @@ public class GetModifiedTypespecProjectsScenario : BenchmarkScenario
                         ["repoRootPath"] = "azure-rest-api-specs",
                         ["targetBranch"] = "main"
                     })
-            ])
+            ],
+            optionalToolNames: ["azsdk_verify_setup"])
     ];
 }

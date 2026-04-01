@@ -47,6 +47,7 @@ public class GetPrLinkCurrentBranchScenario : BenchmarkScenario
             expectedToolCalls:
             [
                 new ExpectedToolCall("azsdk_get_pull_request_link_for_current_branch")
-            ])
+            ],
+            optionalToolNames: ["azsdk_verify_setup"])
     ];
 }

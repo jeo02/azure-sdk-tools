@@ -62,6 +62,7 @@ public class CreateReleasePlanScenario : BenchmarkScenario
                         ["specPullRequestUrl"] = "https://github.com/Azure/azure-rest-api-specs/pull/38387",
                         ["sdkReleaseType"] = "beta"
                     })
-            ])
+            ],
+            optionalToolNames: ["azsdk_verify_setup"])
     ];
 }

@@ -52,6 +52,7 @@ public class CheckSdkGenerationStatusScenario : BenchmarkScenario
                     {
                         ["buildId"] = 5513110
                     })
-            ])
+            ],
+            optionalToolNames: ["azsdk_verify_setup"])
     ];
 }
