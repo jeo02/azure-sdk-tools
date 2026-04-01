@@ -248,7 +248,7 @@ public class Program
             {
                 Console.WriteLine($"Running scenario: {scenario.Name}");
                 Console.WriteLine($"Description: {scenario.Description}");
-                Console.WriteLine($"Target repo: {scenario.Repo.CloneUrl}");
+                Console.WriteLine($"Target repo: {scenario.Repo?.CloneUrl ?? "(empty workspace)"}");
                 Console.WriteLine();
             }
             // override authoring skill path if specified for authoring scenarios
@@ -328,7 +328,7 @@ public class Program
 
         if (repoOptions is { Count: > 0 })
         {
-            scenarios = scenarios.Where(s => repoOptions.ContainsKey($"{s.Repo.Owner}/{s.Repo.Name}"));
+            scenarios = scenarios.Where(s => s.Repo is not null && repoOptions.ContainsKey($"{s.Repo.Owner}/{s.Repo.Name}"));
         }
 
         return scenarios;

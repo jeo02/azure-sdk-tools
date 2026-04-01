@@ -68,6 +68,28 @@ public class WorkspaceManager
     }
 
     /// <summary>
+    /// Prepares an empty workspace with a bare git repository (no repo clone).
+    /// Useful for scenarios that don't require a pre-existing repository.
+    /// </summary>
+    /// <param name="scenarioId">A unique identifier for the benchmark scenario.</param>
+    /// <returns>A <see cref="Workspace"/> instance pointing to the prepared directory.</returns>
+    public async Task<Workspace> PrepareEmptyAsync(string scenarioId)
+    {
+        var runId = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff");
+        var workspaceRoot = Path.Combine(_workspacePath, scenarioId, runId);
+        var repoName = "workspace";
+        var repoPath = Path.Combine(workspaceRoot, repoName);
+        Directory.CreateDirectory(repoPath);
+
+        // Initialize an empty git repo so workspace git operations work
+        await RunGitCommandAsync(repoPath, "init");
+
+        SetupWorkspaceEnvironment();
+
+        return new Workspace(workspaceRoot, repoName);
+    }
+
+    /// <summary>
     /// Cleans up a workspace based on the specified policy and execution result.
     /// </summary>
     /// <param name="workspace">The workspace to clean up.</param>

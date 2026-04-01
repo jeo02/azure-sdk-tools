@@ -38,12 +38,21 @@ public class BenchmarkRunner : IDisposable
 
         try
         {
-            // Apply ref overrides to repo config
-            var repo = ApplyRefOverride(scenario.Repo, options.RefOverrides);
+            // Apply ref overrides to repo config and prepare workspace
+            if (scenario.Repo is not null)
+            {
+                var repo = ApplyRefOverride(scenario.Repo, options.RefOverrides);
 
-            // 1. Environment Setup - prepare workspace
-            Console.WriteLine($"[Benchmark] Preparing workspace for {scenario.Name}...");
-            workspace = await _workspaceManager.PrepareAsync(repo, scenario.Name);
+                // 1. Environment Setup - prepare workspace
+                Console.WriteLine($"[Benchmark] Preparing workspace for {scenario.Name}...");
+                workspace = await _workspaceManager.PrepareAsync(repo, scenario.Name);
+            }
+            else
+            {
+                // 1. Environment Setup - prepare empty workspace (no repo clone)
+                Console.WriteLine($"[Benchmark] Preparing empty workspace for {scenario.Name}...");
+                workspace = await _workspaceManager.PrepareEmptyAsync(scenario.Name);
+            }
 
             // 2. Run scenario setup (if any)
             Console.WriteLine($"[Benchmark] Running scenario setup...");

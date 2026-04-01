@@ -34,8 +34,9 @@ public abstract class BenchmarkScenario
 
     /// <summary>
     /// Gets the configuration for the home repository where the agent will run.
+    /// When null, the workspace is initialized as an empty git repository.
     /// </summary>
-    public abstract RepoConfig Repo { get; }
+    public virtual RepoConfig? Repo => null;
 
     // === MULTI-REPO (optional) ===
 
