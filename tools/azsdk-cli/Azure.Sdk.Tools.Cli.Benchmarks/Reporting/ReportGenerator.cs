@@ -208,6 +208,9 @@ public class ReportGenerator
     private static List<ToolCallRecord> SimplifyToolCalls(List<ToolCallRecord> toolCalls) =>
         toolCalls.Select(tc => IsDetailedTool(tc.ToolName)
             ? tc
-            : new ToolCallRecord { ToolName = tc.ToolName }
+            : new ToolCallRecord { 
+                ToolName = tc.ToolName,
+                DurationMs = tc.DurationMs
+            }
         ).ToList();
 }
