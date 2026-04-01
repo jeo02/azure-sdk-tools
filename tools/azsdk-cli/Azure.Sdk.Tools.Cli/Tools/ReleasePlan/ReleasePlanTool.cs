@@ -106,12 +106,6 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
             DefaultValueFactory = _ => string.Empty,
         };
 
-        private readonly Option<string> apiVersionOpt = new("--api-version")
-        {
-            Description = "API version",
-            Required = true,
-        };
-
         private readonly Option<string> pullRequestOpt = new("--pull-request", "-p")
         {
             Description = "Api spec pull request URL",
@@ -259,7 +253,6 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                 targetReleaseOpt,
                 serviceTreeIdOpt,
                 productTreeIdOpt,
-                apiVersionOpt,
                 pullRequestOpt,
                 sdkReleaseTypeOpt,
                 userEmailOpt,
