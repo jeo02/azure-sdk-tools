@@ -83,6 +83,8 @@ public class ReportGenerator
             .Select(log =>
             {
                 log.ToolCalls = SimplifyToolCalls(log.ToolCalls);
+                log.Messages = []; // to reduce how much tokens we spend making a report.
+                log.GitDiff = null;
                 return log;
             });
 
@@ -175,14 +177,11 @@ public class ReportGenerator
             TotalTokenUsage = totalUsage,
             Scenarios = results.Select((r, i) => new
             {
-                Index = i + 1,
                 r.Scenario.Name,
                 r.Scenario.Description,
-                r.Scenario.Tags,
                 r.Scenario.Prompt,
-                Repo = r.Scenario.Repo.CloneUrl,
-                r.Result,
-                r.Result.TokenUsage
+                r.Scenario.Repo.CloneUrl,
+                r.Result
             }).ToList()
         };
     }
