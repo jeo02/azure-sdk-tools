@@ -76,13 +76,11 @@ public class SessionExecutor : IDisposable
                             ? input.Timestamp - startTs
                             : null;
 
-                        bool isMcpTool = input.ToolName.Contains("azsdk_", StringComparison.OrdinalIgnoreCase);
-
                         toolCalls.Add(new ToolCallRecord
                         {
                             ToolName = input.ToolName,
-                            ToolArgs = isMcpTool ? input.ToolArgs : null,
-                            ToolResult = isMcpTool ? input.ToolResult : null,
+                            ToolArgs = input.ToolArgs,
+                            ToolResult = input.ToolResult,
                             DurationMs = durationMs,
                         });
 

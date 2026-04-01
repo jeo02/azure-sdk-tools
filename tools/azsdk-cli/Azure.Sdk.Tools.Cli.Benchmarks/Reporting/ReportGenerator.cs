@@ -78,7 +78,15 @@ public class ReportGenerator
         var logsJson = await Task.WhenAll(
             logFiles.Select(f => File.ReadAllTextAsync(f, cancellationToken)));
 
-        var combinedData = $"[{string.Join(",\n", logsJson)}]";
+        var logs = logsJson
+            .Select(j => JsonSerializer.Deserialize<BenchmarkLog>(j, JsonOptions)!)
+            .Select(log =>
+            {
+                log.ToolCalls = SimplifyToolCalls(log.ToolCalls);
+                return log;
+            });
+
+        var combinedData = JsonSerializer.Serialize(logs, JsonOptions);
         return await CallLlmAsync(BuildPrompt(combinedData, "Benchmark Log Data (JSON Array)"), cancellationToken);
     }
 
@@ -192,4 +200,14 @@ public class ReportGenerator
 
         return File.ReadAllText(templatePath);
     }
+
+    private static bool IsDetailedTool(string toolName) =>
+        toolName.Contains("azsdk", StringComparison.OrdinalIgnoreCase)
+        || toolName.Equals("skill", StringComparison.OrdinalIgnoreCase);
+
+    private static List<ToolCallRecord> SimplifyToolCalls(List<ToolCallRecord> toolCalls) =>
+        toolCalls.Select(tc => IsDetailedTool(tc.ToolName)
+            ? tc
+            : new ToolCallRecord { ToolName = tc.ToolName }
+        ).ToList();
 }
