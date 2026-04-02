@@ -81,9 +81,6 @@ public class WorkspaceManager
         var repoPath = Path.Combine(workspaceRoot, repoName);
         Directory.CreateDirectory(repoPath);
 
-        // Initialize an empty git repo so workspace git operations work
-        await RunGitCommandAsync(repoPath, "init");
-
         SetupWorkspaceEnvironment();
 
         return new Workspace(workspaceRoot, repoName);
