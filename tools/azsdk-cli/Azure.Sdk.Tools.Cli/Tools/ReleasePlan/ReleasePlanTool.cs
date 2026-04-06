@@ -940,7 +940,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
             {
                 if (releasePlanWorkItemId <= 0)
                 {
-                    return "Invalid release plan ID.";
+                    return new DefaultCommandResponse { ResponseError = "Invalid release plan ID." };
                 }
                 
                 if (!typeSpecHelper.IsValidTypeSpecProjectPath(typeSpecProjectPath))
