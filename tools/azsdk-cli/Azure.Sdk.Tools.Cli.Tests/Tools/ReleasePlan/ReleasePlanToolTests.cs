@@ -1113,5 +1113,32 @@ namespace Azure.Sdk.Tools.Cli.Tests.Tools.ReleasePlan
             Assert.That(result.Message, Does.Contain("Successfully updated release plan"));
             mockDevOps.Verify(x => x.UpdateReleasePlanSDKDetailsAsync(It.IsAny<int>(), It.IsAny<List<SDKInfo>>(), It.IsAny<CancellationToken>()), Times.Never);
         }
+
+        // ==================== KPI Attestation Tests ====================
+
+        [Test]
+        public async Task Test_GetKPIAttestationStatus_InvalidInput_ReturnsError()
+        {
+            var emptyProduct = await releasePlanTool.GetKPIAttestationStatus("", "GA");
+            Assert.That(emptyProduct.ResponseError, Does.Contain("Product ID is required"));
+
+            var badLifecycle = await releasePlanTool.GetKPIAttestationStatus("product-123", "InvalidLifecycle");
+            Assert.That(badLifecycle.ResponseError, Does.Contain("Invalid lifecycle value"));
+        }
+
+        [Test]
+        public async Task Test_GetKPIAttestationStatus_NoReleasePlans_ReturnsMessage()
+        {
+            var result = await releasePlanTool.GetKPIAttestationStatus("product-123", "GA");
+            Assert.IsNull(result.ResponseError);
+            Assert.That(result.Message, Does.Contain("No release plans found"));
+        }
+
+        [Test]
+        public async Task Test_GetKPIAttestationStatus_ValidLifecycle_ReturnsNoError()
+        {
+            var result = await releasePlanTool.GetKPIAttestationStatus("product-123", "Private Preview");
+            Assert.IsNull(result.ResponseError);
+        }
     }
 }
