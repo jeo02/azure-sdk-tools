@@ -221,13 +221,19 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
         private readonly Option<string> kpiProductIdOpt = new("--product")
         {
             Description = "Product service tree ID",
-            Required = true,
+            Required = false,
         };
 
         private readonly Option<string> lifecycleOpt = new("--lifecycle")
         {
             Description = "Product lifecycle stage: 'In Dev', 'Private Preview', 'Public Preview', 'GA', or 'Retired'",
-            Required = true,
+            Required = false,
+        };
+
+        private readonly Option<string> kpiTypeSpecProjectPathOpt = new("--typespec-path")
+        {
+            Description = "Path to TypeSpec project",
+            Required = false,
         };
 
         private const string sdkBotEmail = "azuresdk@microsoft.com";
@@ -287,7 +293,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
             new McpCommand(updateApiSpecPullRequestCommandName, "Update TypeSpec pull request URL in a release plan", UpdateApiSpecPullRequestToolName) { pullRequestOpt, workItemIdOpt, releasePlanNumberOpt, },
             new McpCommand(getServiceDetailsCommandName, "Get service and product details (service tree ID, service ID, package display name) in service tree for TypeSpec project", GetServiceDetailsToolName) { typeSpecProjectOpt, },
             new McpCommand(abandonReleasePlanCommandName, "Abandon a release plan", AbandonReleasePlanToolName) { workItemIdOpt, releasePlanNumberOpt, },
-            new McpCommand(getKpiAttestationStatusCommandName, "Get KPI attestation status for a product by product ID and lifecycle", GetKPIAttestationStatusToolName) { kpiProductIdOpt, lifecycleOpt, },
+            new McpCommand(getKpiAttestationStatusCommandName, "Get KPI attestation status for a product by product ID and lifecycle", GetKPIAttestationStatusToolName) { kpiProductIdOpt, lifecycleOpt, kpiTypeSpecProjectPathOpt, },
             new McpCommand(updateReleasePlanCommandName, "Update an existing release plan", UpdateReleasePlanToolName)
             {
                 updateTypeSpecProjectPathOpt,
@@ -359,7 +365,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     return await AbandonReleasePlan(workItemId: commandParser.GetValue(workItemIdOpt), releasePlanId: commandParser.GetValue(releasePlanNumberOpt), ct: ct);
 
                 case getKpiAttestationStatusCommandName:
-                    return await GetKPIAttestationStatus(commandParser.GetValue(kpiProductIdOpt), commandParser.GetValue(lifecycleOpt), ct);
+                    return await GetKPIAttestationStatus(commandParser.GetValue(kpiProductIdOpt), commandParser.GetValue(lifecycleOpt), commandParser.GetValue(kpiTypeSpecProjectPathOpt), ct);
 
                 case updateReleasePlanCommandName:
                     return await UpdateReleasePlan(
@@ -1676,41 +1682,61 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
             "Retired"
         };
 
-        [McpServerTool(Name = GetKPIAttestationStatusToolName), Description("Get KPI attestation status for release plans with given product tree ID and lifecycle.")]
-        public async Task<ReleasePlanListResponse> GetKPIAttestationStatus(
-            [Description("Product service tree ID")] string productId,
-            [Description("Product lifecycle stage: 'In Dev', 'Private Preview', 'Public Preview', 'GA', or 'Retired'")] string lifecycle,
-            CancellationToken ct = default)
+        [McpServerTool(Name = GetKPIAttestationStatusToolName), Description("Get KPI attestation status for release plans with given product tree ID and lifecycle. If product ID and lifecycle are not provided, a TypeSpec project path can be used to resolve them.")]
+        public async Task<ReleasePlanListResponse> GetKPIAttestationStatus(string productId = "", string lifecycle = "", string typeSpecProjectPath = "", CancellationToken ct = default)
         {
+            var releasePlans = new List<ReleasePlanWorkItem>();
             try
             {
-                if (string.IsNullOrWhiteSpace(productId))
+                // If productId or lifecycle not provided, try to resolve from TypeSpec project path
+                if (string.IsNullOrWhiteSpace(productId) || string.IsNullOrWhiteSpace(lifecycle))
                 {
-                    return new ReleasePlanListResponse
+                    if (string.IsNullOrWhiteSpace(typeSpecProjectPath))
                     {
-                        ResponseError = "Product ID is required. Please provide a valid product service tree ID."
-                    };
+                        return new ReleasePlanListResponse
+                        {
+                            ResponseError = "Either provide both product ID and lifecycle, or provide a TypeSpec project path to resolve them."
+                        };
+                    }
+
+                    logger.LogInformation("Resolving product ID and lifecycle from TypeSpec project path: {typeSpecProjectPath}", typeSpecProjectPath);
+
+                    var releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(typeSpecProjectPath, ct);
+                    if (releasePlan == null)
+                    {
+                        return new ReleasePlanListResponse
+                        {
+                            ResponseError = $"No release plan found for TypeSpec project path '{typeSpecProjectPath}'. Cannot resolve product ID and lifecycle."
+                        };
+                    }
+
+                    // Fill these in for logging later on
+                    productId = releasePlan.ProductTreeId;
+                    lifecycle = releasePlan.ProductLifecycle;
+                    releasePlans.Add(releasePlan);
                 }
-
-                if (string.IsNullOrWhiteSpace(lifecycle) || !SupportedLifecycles.Contains(lifecycle))
+                else
                 {
-                    return new ReleasePlanListResponse
+                    if (!SupportedLifecycles.Contains(lifecycle))
                     {
-                        ResponseError = $"Invalid lifecycle value '{lifecycle}'. Supported values are: In Dev, Private Preview, Public Preview, GA, Retired."
-                    };
-                }
+                        return new ReleasePlanListResponse
+                        {
+                            ResponseError = $"Invalid lifecycle value '{lifecycle}'. Supported values are: In Dev, Private Preview, Public Preview, GA, Retired."
+                        };
+                    }
 
-                logger.LogInformation("Getting KPI attestation status for product {productId} with lifecycle {lifecycle}", productId, lifecycle);
+                    logger.LogInformation("Getting KPI attestation status for product {productId} with lifecycle {lifecycle}", productId, lifecycle);
 
-                var releasePlans = await devOpsService.GetReleasePlansByProductAndLifecycleAsync(productId, lifecycle, ct);
+                    releasePlans = await devOpsService.GetReleasePlansByProductAndLifecycleAsync(productId, lifecycle, ct);
 
-                if (releasePlans.Count == 0)
-                {
-                    return new ReleasePlanListResponse
+                    if (releasePlans.Count == 0)
                     {
-                        Message = $"No release plans found for product '{productId}' with lifecycle '{lifecycle}'. " +
-                                  "A release plan must be created and completed before KPI attestation can be fulfilled."
-                    };
+                        return new ReleasePlanListResponse
+                        {
+                            Message = $"No release plans found for product '{productId}' with lifecycle '{lifecycle}'. " +
+                                      "A release plan must be created and completed before KPI attestation can be fulfilled."
+                        };
+                    }
                 }
 
                 var finishedPlans = releasePlans.Where(rp => rp.Status.Equals("Finished", StringComparison.OrdinalIgnoreCase)).ToList();

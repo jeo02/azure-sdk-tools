@@ -1117,28 +1117,30 @@ namespace Azure.Sdk.Tools.Cli.Tests.Tools.ReleasePlan
         // ==================== KPI Attestation Tests ====================
 
         [Test]
-        public async Task Test_GetKPIAttestationStatus_InvalidInput_ReturnsError()
+        public async Task Test_GetKPIAttestationStatus_NoInputs_ReturnsError()
         {
-            var emptyProduct = await releasePlanTool.GetKPIAttestationStatus("", "GA");
-            Assert.That(emptyProduct.ResponseError, Does.Contain("Product ID is required"));
+            var result = await releasePlanTool.GetKPIAttestationStatus("", "", "");
+            Assert.That(result.ResponseError, Does.Contain("Either provide both product ID and lifecycle"));
 
             var badLifecycle = await releasePlanTool.GetKPIAttestationStatus("product-123", "InvalidLifecycle");
             Assert.That(badLifecycle.ResponseError, Does.Contain("Invalid lifecycle value"));
         }
 
         [Test]
-        public async Task Test_GetKPIAttestationStatus_NoReleasePlans_ReturnsMessage()
+        public async Task Test_GetKPIAttestationStatus_WithProductAndLifecycle_ReturnsNoError()
         {
-            var result = await releasePlanTool.GetKPIAttestationStatus("product-123", "GA");
+            var result = await releasePlanTool.GetKPIAttestationStatus("product-123", "Private Preview");
             Assert.IsNull(result.ResponseError);
             Assert.That(result.Message, Does.Contain("No release plans found"));
         }
 
         [Test]
-        public async Task Test_GetKPIAttestationStatus_ValidLifecycle_ReturnsNoError()
+        public async Task Test_GetKPIAttestationStatus_WithTypeSpecPath_ResolvesProductInfo()
         {
-            var result = await releasePlanTool.GetKPIAttestationStatus("product-123", "Private Preview");
+            var result = await releasePlanTool.GetKPIAttestationStatus(typeSpecProjectPath: "specification/testcontoso/Contoso.Management");
             Assert.IsNull(result.ResponseError);
+            Assert.That(result.Message, Does.Contain("12345678-1234-5678-9012-123456789012"));
+            Assert.That(result.Message, Does.Contain("GA"));
         }
     }
 }

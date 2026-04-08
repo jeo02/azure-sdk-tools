@@ -259,6 +259,16 @@ namespace Azure.Sdk.Tools.Cli.Tests.Mocks.Services
 
         Task<ReleasePlanWorkItem?> IDevOpsService.GetReleasePlanByTypeSpecProjectPathAsync(string typeSpecProjectPath, CancellationToken ct)
         {
+            if (typeSpecProjectPath == "specification/testcontoso/Contoso.Management")
+            {
+                return Task.FromResult<ReleasePlanWorkItem?>(new ReleasePlanWorkItem
+                {
+                    ProductTreeId = "12345678-1234-5678-9012-123456789012",
+                    ProductLifecycle = "GA",
+                    Title = "Contoso Management Release Plan",
+                });
+            }
+
             return Task.FromResult<ReleasePlanWorkItem?>(null);
         }
 
