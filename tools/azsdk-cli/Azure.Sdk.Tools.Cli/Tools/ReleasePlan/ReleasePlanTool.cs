@@ -1715,14 +1715,25 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
 
                 var finishedPlans = releasePlans.Where(rp => rp.Status.Equals("Finished", StringComparison.OrdinalIgnoreCase)).ToList();
                 var pendingPlans = releasePlans.Where(rp => !rp.Status.Equals("Finished", StringComparison.OrdinalIgnoreCase)).ToList();
+                var attestedPlans = finishedPlans.Where(rp => rp.AttestationStatus.Equals("Completed", StringComparison.OrdinalIgnoreCase)).ToList();
+
+                if (attestedPlans.Count > 0)
+                {
+                    return new ReleasePlanListResponse
+                    {
+                        ReleasePlanDetailsList = releasePlans,
+                        Message = $"KPI attestation is completed for product '{productId}' ({lifecycle}). " +
+                                  $"Found {attestedPlans.Count} finished release plan(s) with attestation completed."
+                    };
+                }
 
                 if (finishedPlans.Count > 0)
                 {
                     return new ReleasePlanListResponse
                     {
                         ReleasePlanDetailsList = releasePlans,
-                        Message = $"KPI attestation is completed for product '{productId}' ({lifecycle}). " +
-                                  $"Found {finishedPlans.Count} finished release plan(s) with attestation completed."
+                        Message = $"Found {finishedPlans.Count} finished release plan(s) for product '{productId}' ({lifecycle}), " +
+                                  "but none have attestation status marked as completed."
                     };
                 }
 
