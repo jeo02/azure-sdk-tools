@@ -434,12 +434,12 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     // Fall back to TypeSpec project path if spec PR lookup failed
                     if (releasePlan == null && !string.IsNullOrWhiteSpace(typeSpecProjectPath))
                     {
-                        releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(typeSpecProjectPath, ct);
+                        releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(typeSpecProjectPath, ct: ct);
                     }
                 }
                 else if (!string.IsNullOrWhiteSpace(typeSpecProjectPath))
                 {
-                    releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(typeSpecProjectPath, ct);
+                    releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(typeSpecProjectPath, ct: ct);
                 }
                 else
                 {
@@ -621,7 +621,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                 {
                     // Try to find by TypeSpec project path
                     logger.LogInformation("Work item not found or not provided, searching by TypeSpec project path: {typeSpecProjectPath}", specProject);
-                    releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(specProject, ct);
+                    releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(specProject, ct: ct);
                 }
 
                 if (releasePlan == null)
@@ -1701,7 +1701,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
 
                     logger.LogInformation("Resolving product ID and lifecycle from TypeSpec project path: {typeSpecProjectPath}", typeSpecProjectPath);
 
-                    var releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(typeSpecProjectPath, ct);
+                    var releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(typeSpecProjectPath, true, ct);
                     if (releasePlan == null)
                     {
                         return new ReleasePlanListResponse
