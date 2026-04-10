@@ -1,0 +1,16 @@
+# .vally.yaml — project configuration
+# See https://aka.ms/vally/config for schema reference.
+paths:
+  skills: ["skills/"]
+  evals: ["evals/"]
+  results: results/
+  evalFilenames: ["eval.yaml", "*.eval.yaml"]
+
+suites:
+  ci-gate:
+    filter: { priority: [p0, p1] }
+  nightly:
+    filter: { priority: [p0, p1, p2] }
+
+plugins:
+  - "C:\\Users\\juanospina\\source\\repos\\azure-sdk-tools\\tools\\azsdk-cli\\Azure.Sdk.Tools.Vally\\register.ts"

@@ -5,8 +5,7 @@ metadata:
   version: "1.1.0"
   distribution: shared
 description: "Generate, build, and test Azure SDKs locally from TypeSpec, with automatic customization to resolve build errors and apply SDK changes. **UTILITY SKILL**. USE FOR: \"generate SDK locally\", \"build SDK\", \"run SDK tests\", \"update changelog\", \"fix SDK build errors\", \"fix breaking changes\", \"resolve SDK generation errors\", \"customize TypeSpec\", \"apply TypeSpec customization\", \"rename SDK client\", \"rename SDK model\", \"hide operation from SDK\", \"fix analyzer errors\", \"fix compilation errors\", \"resolve customization drift\", \"create subclient\", \"apply client.tsp changes\". DO NOT USE FOR: publishing to package registries, CI pipeline configuration, API design review. INVOKES: azure-sdk-mcp:azsdk_package_generate_code, azure-sdk-mcp:azsdk_package_build_code, azure-sdk-mcp:azsdk_package_run_tests, azure-sdk-mcp:azsdk_customized_code_update."
-compatibility:
-  requires: "azure-sdk-mcp server, local azure-sdk-for-{language} clone, language build tools"
+compatibility: "Requires azure-sdk-mcp server, local azure-sdk-for-{language} clone, language build tools"
 ---
 
 # Generate SDK Locally

@@ -5,8 +5,7 @@ license: MIT
 metadata:
   author: Microsoft
   version: "1.0.0"
-compatibility:
-  platforms: "copilot-chat"
+compatibility: "Platform is copilot-chat"
 ---
 
 # Sensei

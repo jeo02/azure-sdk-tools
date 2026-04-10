@@ -1,0 +1,28 @@
+name: skill-authoring-trigger
+type: capability
+config:
+  runs: 3
+  timeout: 60
+  model: gpt-4o
+  executor: temp-mock
+
+stimuli:
+  - name: basic-trigger
+    prompt: "I need to create a new skill for Azure SDK. What's the correct SKILL.md format?"
+    graders:
+      - type: output-contains
+        config:
+          substring: "skill"
+
+  - name: anti-trigger
+    prompt: "How do I authenticate with Azure Active Directory in my Python app?"
+    graders:
+      - type: output-not-contains
+        config:
+          substring: "SKILL.md"
+      - type: output-not-contains
+        config:
+          substring: "frontmatter"
+
+scoring:
+  threshold: 0.8
