@@ -14,9 +14,14 @@ Collect these details (do not use temporary values):
 
 ## SDK Details Update
 
-To update SDK details in the release plan:
+Identify languages from `tspconfig.yaml` emitter configuration:
 
-- Run `azsdk_update_sdk_details_in_release_plan` with the release plan work item ID and TypeSpec project path
+- Map emitter names to languages (.NET, Java, Python, JavaScript, Go)
+- Extract package names per language
+- **Validate package names:**
+  - JavaScript: Must start with `@azure/`
+  - Go: Must start with `sdk/`
+- Run `azsdk_update_sdk_details_in_release_plan` with language/package JSON
 
 ## Namespace Approval (Management Plane Only)
 
