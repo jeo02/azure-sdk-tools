@@ -174,12 +174,6 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
             Required = true,
         };
 
-        private readonly Option<string> updateApiVersionOpt = new("--api-version")
-        {
-            Description = "API version",
-            Required = true,
-        };
-
         private readonly Option<string> updateSdkReleaseTypeOpt = new("--sdk-type")
         {
             Description = "SDK release type: beta or stable. If not provided, inferred from API version (preview → beta, otherwise stable).",
@@ -270,7 +264,6 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
             {
                 updateTypeSpecProjectPathOpt,
                 workItemIdOpt,
-                updateApiVersionOpt,
                 updateSdkReleaseTypeOpt,
                 pullRequestOpt,
                 optionalServiceTreeIdOpt,
