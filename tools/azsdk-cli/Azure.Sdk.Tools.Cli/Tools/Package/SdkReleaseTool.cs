@@ -246,6 +246,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.Package
                     if (!package.IsApiViewApproved)
                     {
                         package.IsPackageReady = false;
+                        package.PackageReadinessDetails += $"API view is not approved for GA release of package '{packageName}'. ";
 
                         // Resolve APIView URL so the user can navigate directly to the review
                         try
@@ -268,11 +269,11 @@ namespace Azure.Sdk.Tools.Cli.Tools.Package
                         // If URL could not be resolved, provide fallback guidance
                         if (string.IsNullOrEmpty(package.ApiViewUrl))
                         {
-                            package.PackageReadinessDetails += $"Search for the package review at https://apiview.dev by selecting the language and searching for '{packageName}'. ";
+                            package.PackageReadinessDetails += $"Search for the API review at https://apiview.dev by selecting the language and searching for '{packageName}'. ";
                         }
                         else if (!string.IsNullOrEmpty(package.ApiViewUrl))
                         {
-                            package.PackageReadinessDetails += $"Review and approve the API at {package.ApiViewUrl}. ";
+                            package.PackageReadinessDetails += $"API Review required at {package.ApiViewUrl}. ";
                         }
                     }
 
