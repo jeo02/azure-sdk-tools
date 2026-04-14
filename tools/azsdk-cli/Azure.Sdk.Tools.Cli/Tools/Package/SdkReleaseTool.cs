@@ -271,7 +271,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.Package
                         {
                             package.PackageReadinessDetails += $"Search for the API review at https://apiview.dev by selecting the language and searching for '{packageName}'. ";
                         }
-                        else if (!string.IsNullOrEmpty(package.ApiViewUrl))
+                        else
                         {
                             package.PackageReadinessDetails += $"API Review required at {package.ApiViewUrl}. ";
                         }
