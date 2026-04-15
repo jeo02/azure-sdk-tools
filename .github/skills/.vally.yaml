@@ -1,0 +1,4 @@
+paths:
+  evalFilenames:
+  - eval.yaml
+  - eval.yml
