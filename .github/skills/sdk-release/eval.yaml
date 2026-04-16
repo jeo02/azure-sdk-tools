@@ -4,12 +4,12 @@ version: '1.0'
 type: capability
 environment:
   skills:
-  - ./SKILL.md
+  - .
 config:
   runs: 1
   timeout: 300
   model: gpt-4o
-  executor: mock
+  executor: copilot-sdk
 stimuli:
 - name: release-basic-001
   prompt: I want to release my Azure Event Hubs Python SDK package.
@@ -73,9 +73,9 @@ stimuli:
 - name: anti-trigger
   prompt: How do I write unit tests for my Azure SDK client?
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [sdk-release]
   - type: output-not-contains
     config:
       substring: release process
@@ -85,9 +85,9 @@ stimuli:
 - name: basic-trigger
   prompt: I need to release a new version of my Azure SDK package. Walk me through the process.
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [sdk-release]
   - type: output-contains
     config:
       substring: release
@@ -97,92 +97,89 @@ stimuli:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [sdk-release]
 - name: trigger-positive-002
   prompt: how to publish a new SDK version
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [sdk-release]
 - name: trigger-positive-003
   prompt: walk me through SDK release process
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [sdk-release]
 - name: trigger-positive-004
   prompt: release a new version of azure-sdk
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [sdk-release]
 - name: trigger-positive-005
   prompt: SDK release checklist
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [sdk-release]
 - name: trigger-negative-001
   prompt: write unit tests
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [sdk-release]
 - name: trigger-negative-002
   prompt: fix my pipeline build error
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [sdk-release]
 - name: trigger-negative-003
   prompt: create a new TypeSpec definition
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [sdk-release]
 - name: trigger-negative-004
   prompt: optimize markdown tokens
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [sdk-release]
 - name: trigger-negative-005
   prompt: resolve APIView feedback
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [sdk-release]
 scoring:
-  weights:
-    task_completion: 0.7
-    efficiency: 0.3
   threshold: 0.7

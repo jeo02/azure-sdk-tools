@@ -1,0 +1,5 @@
+paths:
+  skills: [.github/skills]
+  evals:  [.github/skills]
+  results: .vally/results
+  evalFilenames: [eval.yaml, eval.yml]

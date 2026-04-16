@@ -4,12 +4,12 @@ version: '1.0'
 type: capability
 environment:
   skills:
-  - ./SKILL.md
+  - .
 config:
   runs: 1
   timeout: 300
   model: gpt-4o
-  executor: mock
+  executor: copilot-sdk
 stimuli:
 - name: skill-authoring-basic-001
   prompt: |
@@ -29,9 +29,9 @@ stimuli:
 - name: anti-trigger
   prompt: How do I authenticate with Azure Active Directory in my Python app?
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [skill-authoring]
   - type: output-not-contains
     config:
       substring: SKILL.md
@@ -41,9 +41,9 @@ stimuli:
 - name: basic-trigger
   prompt: I need to create a new skill for Azure SDK. What's the correct SKILL.md format?
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [skill-authoring]
   - type: output-contains
     config:
       substring: skill
@@ -53,101 +53,98 @@ stimuli:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [skill-authoring]
 - name: trigger-positive-002
   prompt: write a skill for API review
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [skill-authoring]
 - name: trigger-positive-003
   prompt: what is the SKILL.md format
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [skill-authoring]
 - name: trigger-positive-004
   prompt: skill template structure
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [skill-authoring]
 - name: trigger-positive-005
   prompt: review my skill PR for compliance
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [skill-authoring]
 - name: trigger-positive-006
   prompt: skill best practices and token budgets
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [skill-authoring]
 - name: trigger-negative-001
   prompt: deploy my Azure Function
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [skill-authoring]
 - name: trigger-negative-002
   prompt: fix my pipeline build error
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [skill-authoring]
 - name: trigger-negative-003
   prompt: authenticate with Azure AD
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [skill-authoring]
 - name: trigger-negative-004
   prompt: how do I release an SDK package
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [skill-authoring]
 - name: trigger-negative-005
   prompt: configure Azure Storage geo-redundancy
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [skill-authoring]
 scoring:
-  weights:
-    task_completion: 0.7
-    efficiency: 0.3
   threshold: 0.7

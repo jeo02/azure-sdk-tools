@@ -4,12 +4,12 @@ version: '1.0'
 type: capability
 environment:
   skills:
-  - ./SKILL.md
+  - .
 config:
   runs: 1
   timeout: 600
   model: gpt-4o
-  executor: mock
+  executor: copilot-sdk
 stimuli:
 - name: sdk-local-analyzer-errors-001
   prompt: 'The .NET SDK build is failing with analyzer errors: AZC0030 says the model name ends with ''Parameters'' and AZC0012
@@ -247,7 +247,4 @@ stimuli:
     - azsdk_package_update_version
     max_turns: 5
 scoring:
-  weights:
-    task_completion: 0.7
-    efficiency: 0.3
   threshold: 0.7

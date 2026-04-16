@@ -4,12 +4,12 @@ version: '1.0'
 type: capability
 environment:
   skills:
-  - ./SKILL.md
+  - .
 config:
   runs: 1
   timeout: 300
   model: gpt-4o
-  executor: mock
+  executor: copilot-sdk
 stimuli:
 - name: release-plan-basic-001
   prompt: I need to create a release plan for my API spec PR https://github.com/Azure/azure-rest-api-specs/pull/12345. The
@@ -70,9 +70,9 @@ stimuli:
 - name: anti-trigger
   prompt: How do I configure logging in my Azure Function?
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [prepare-release-plan]
   - type: output-not-contains
     config:
       substring: release plan
@@ -82,9 +82,9 @@ stimuli:
 - name: basic-trigger
   prompt: I need to prepare a release plan for the new Azure SDK package version
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [prepare-release-plan]
   - type: output-contains
     config:
       substring: release
@@ -94,92 +94,89 @@ stimuli:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [prepare-release-plan]
 - name: trigger-positive-002
   prompt: plan the next SDK release
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [prepare-release-plan]
 - name: trigger-positive-003
   prompt: create release plan for my package
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [prepare-release-plan]
 - name: trigger-positive-004
   prompt: what goes in a release plan
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [prepare-release-plan]
 - name: trigger-positive-005
   prompt: help me prepare for SDK release
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: true
+      required: [prepare-release-plan]
 - name: trigger-negative-001
   prompt: deploy my Azure Function
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [prepare-release-plan]
 - name: trigger-negative-002
   prompt: fix my pipeline build error
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [prepare-release-plan]
 - name: trigger-negative-003
   prompt: create a new TypeSpec definition
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [prepare-release-plan]
 - name: trigger-negative-004
   prompt: configure Azure logging
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [prepare-release-plan]
 - name: trigger-negative-005
   prompt: resolve APIView feedback
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
-  - type: skill-activated
+  - type: skill-invocation
     config:
-      expected: false
+      disallowed: [prepare-release-plan]
 scoring:
-  weights:
-    task_completion: 0.7
-    efficiency: 0.3
   threshold: 0.7
