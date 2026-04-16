@@ -2,16 +2,7 @@
 # See: https://vally.dev/reference/vally-config
 
 paths:
-  evals: 
-    - APIView/
-    - Config/
-    - EngSys/
-    - Github/
-    - Package/
-    - Pipeline/
-    - ReleasePlan/
-    - TypeSpec/
-    - Verify/
+  evals: evals/
   results: results/
   evalFilenames: ["*.eval.yaml", "eval.yaml"]
 
