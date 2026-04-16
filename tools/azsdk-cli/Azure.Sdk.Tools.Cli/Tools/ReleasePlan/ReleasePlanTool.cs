@@ -236,6 +236,13 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
             Required = false,
         };
 
+        private readonly Option<bool> kpiIsTestReleasePlanOpt = new("--test-release")
+        {
+            Description = "Use test release plans",
+            Required = false,
+            DefaultValueFactory = _ => false,
+        };
+
         private const string sdkBotEmail = "azuresdk@microsoft.com";
         private const string sdkApexEmail = "azsdkapex@microsoft.com";
         private static readonly string DEFAULT_BRANCH = "main";
@@ -293,7 +300,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
             new McpCommand(updateApiSpecPullRequestCommandName, "Update TypeSpec pull request URL in a release plan", UpdateApiSpecPullRequestToolName) { pullRequestOpt, workItemIdOpt, releasePlanNumberOpt, },
             new McpCommand(getServiceDetailsCommandName, "Get service and product details (service tree ID, service ID, package display name) in service tree for TypeSpec project", GetServiceDetailsToolName) { typeSpecProjectOpt, },
             new McpCommand(abandonReleasePlanCommandName, "Abandon a release plan", AbandonReleasePlanToolName) { workItemIdOpt, releasePlanNumberOpt, },
-            new McpCommand(getKpiAttestationStatusCommandName, "Get KPI attestation status for a product by product ID and lifecycle", GetKPIAttestationStatusToolName) { kpiProductIdOpt, lifecycleOpt, kpiTypeSpecProjectPathOpt, },
+            new McpCommand(getKpiAttestationStatusCommandName, "Get KPI attestation status for a product by product ID and lifecycle", GetKPIAttestationStatusToolName) { kpiProductIdOpt, lifecycleOpt, kpiTypeSpecProjectPathOpt, kpiIsTestReleasePlanOpt, },
             new McpCommand(updateReleasePlanCommandName, "Update an existing release plan", UpdateReleasePlanToolName)
             {
                 updateTypeSpecProjectPathOpt,
@@ -365,7 +372,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     return await AbandonReleasePlan(workItemId: commandParser.GetValue(workItemIdOpt), releasePlanId: commandParser.GetValue(releasePlanNumberOpt), ct: ct);
 
                 case getKpiAttestationStatusCommandName:
-                    return await GetKPIAttestationStatus(commandParser.GetValue(kpiProductIdOpt), commandParser.GetValue(lifecycleOpt), commandParser.GetValue(kpiTypeSpecProjectPathOpt), ct);
+                    return await GetKPIAttestationStatus(commandParser.GetValue(kpiProductIdOpt), commandParser.GetValue(lifecycleOpt), commandParser.GetValue(kpiTypeSpecProjectPathOpt), commandParser.GetValue(kpiIsTestReleasePlanOpt), ct);
 
                 case updateReleasePlanCommandName:
                     return await UpdateReleasePlan(
@@ -1683,11 +1690,19 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
         };
 
         [McpServerTool(Name = GetKPIAttestationStatusToolName), Description("Get KPI attestation status for release plans with given product tree ID and lifecycle. If product ID and lifecycle are not provided, a TypeSpec project path can be used to resolve them.")]
-        public async Task<ReleasePlanListResponse> GetKPIAttestationStatus(string productId = "", string lifecycle = "", string typeSpecProjectPath = "", CancellationToken ct = default)
+        public async Task<ReleasePlanListResponse> GetKPIAttestationStatus(string productId = "", string lifecycle = "", string typeSpecProjectPath = "", bool isTestReleasePlan = false, CancellationToken ct = default)
         {
             var releasePlans = new List<ReleasePlanWorkItem>();
             try
             {
+                // Check environment variable to determine if this should be a test release plan
+                var isAgentTesting = environmentHelper.GetBooleanVariable("AZSDKTOOLS_AGENT_TESTING", false);
+                if (isAgentTesting)
+                {
+                    isTestReleasePlan = true;
+                    logger.LogInformation("AZSDKTOOLS_AGENT_TESTING environment variable is set to true, creating test release plan");
+                }
+
                 // If productId or lifecycle not provided, try to resolve from TypeSpec project path
                 if (string.IsNullOrWhiteSpace(productId) || string.IsNullOrWhiteSpace(lifecycle))
                 {
@@ -1727,7 +1742,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
 
                     logger.LogInformation("Getting KPI attestation status for product {productId} with lifecycle {lifecycle}", productId, lifecycle);
 
-                    releasePlans = await devOpsService.GetReleasePlansByProductAndLifecycleAsync(productId, lifecycle, ct);
+                    releasePlans = await devOpsService.GetReleasePlansByProductAndLifecycleAsync(productId, lifecycle, isTestReleasePlan, ct);
 
                     if (releasePlans.Count == 0)
                     {
