@@ -1,0 +1,16 @@
+# Vally configuration for Azure SDK CLI MCP tool evaluations
+# See: https://vally.dev/reference/vally-config
+
+paths:
+  results: results/
+  evalFilenames: ["*.eval.yaml", "eval.yaml"]
+
+environments:
+  azsdk-mcp:
+    mcpServers:
+      azure-sdk-mcp:
+        type: stdio
+        command: dotnet
+        args: ["run", "--project", "../Azure.Sdk.Tools.Cli", "--", "start"]
+        timeout: 30000
+
