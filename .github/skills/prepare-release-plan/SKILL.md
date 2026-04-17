@@ -29,9 +29,8 @@ compatibility: "Requires azure-sdk-mcp server and an API spec PR in Azure/azure-
 2. **Check Existing** — Query by plan number or spec PR link.
 3. **Gather Info** — Collect Service Tree IDs, timeline. See [details](references/release-plan-details.md).
 4. **Create** — Run `azure-sdk-mcp:azsdk_create_release_plan`.
-5. **SDK Details** — Map emitters to languages.
-6. **Namespace** — For mgmt plane first releases, link approval issue.
-7. **Link PRs** — Link SDK PRs to plan.
+5. **Namespace** — For mgmt plane first releases, link approval issue.
+6. **Link PRs** — Link SDK PRs to plan.
 
 ## Examples
 
