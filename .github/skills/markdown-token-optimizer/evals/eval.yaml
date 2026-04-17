@@ -1,122 +1,114 @@
-name: sensei-eval
-description: Evaluation suite for sensei skill improvement skill.
+name: markdown-token-optimizer-eval
+description: Evaluation suite for markdown token optimizer skill.
 version: '1.0'
 type: capability
-environment:
-  skills:
-  - .
+tags:
+  priority: p0
+environment: azsdk-mcp
 config:
   runs: 1
   timeout: 300
   model: gpt-4o
   executor: copilot-sdk
 stimuli:
-- name: sensei-basic-001
+- name: markdown-token-optimizer-basic-001
   prompt: |
-    Review this skill frontmatter for compliance:
+    Optimize the following markdown content to reduce token count while preserving meaning:
 
-    ---
-    name: example-skill
-    description: A skill for doing things
-    ---
+    # Introduction
 
-    Check if it meets waza requirements and suggest improvements.
+    This is a very long introduction to the topic. We will be discussing many different aspects of this topic in great detail throughout this document. The purpose of this introduction is to provide context and background information.
+
+    ## Background
+
+    The background section provides additional context about the topic we are discussing.
   tags:
     category: basic
   graders:
   - type: output-contains
     config:
-      substring: missing fields
+      substring: redundancy
   - type: output-contains
     config:
-      substring: improvements
+      substring: key information
   - type: output-contains
     config:
-      substring: requirements
+      substring: token count
 - name: anti-trigger
-  prompt: How do I set up automatic retries for my HTTP client?
+  prompt: How do I deploy my Azure Function to production?
   graders:
   - type: skill-invocation
     config:
-      disallowed: [sensei]
+      disallowed: [markdown-token-optimizer]
   - type: output-not-contains
     config:
-      substring: frontmatter
+      substring: token budget
   - type: output-not-contains
     config:
-      substring: Ralph loop
+      substring: reduce tokens
 - name: basic-trigger
-  prompt: Run sensei on the api-validation skill to improve its frontmatter compliance
+  prompt: My SKILL.md is too large and uses too many tokens. Can you help me optimize it?
   graders:
   - type: skill-invocation
     config:
-      required: [sensei]
+      required: [markdown-token-optimizer]
   - type: output-contains
     config:
-      substring: skill
+      substring: token
 - name: trigger-positive-001
-  prompt: run sensei on my skill
+  prompt: optimize markdown for token efficiency
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [sensei]
+      required: [markdown-token-optimizer]
 - name: trigger-positive-002
-  prompt: improve skill frontmatter compliance
+  prompt: reduce tokens in my SKILL.md
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [sensei]
+      required: [markdown-token-optimizer]
 - name: trigger-positive-003
-  prompt: fix frontmatter for azure-deploy
+  prompt: my file has too many tokens
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [sensei]
+      required: [markdown-token-optimizer]
 - name: trigger-positive-004
-  prompt: score my skill
+  prompt: token count is too high
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [sensei]
+      required: [markdown-token-optimizer]
 - name: trigger-positive-005
-  prompt: sensei help
+  prompt: make this markdown more concise for AI
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [sensei]
+      required: [markdown-token-optimizer]
 - name: trigger-positive-006
-  prompt: check skill tokens
+  prompt: shrink file size for token budget
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [sensei]
-- name: trigger-positive-007
-  prompt: frontmatter audit on all skills
-  tags:
-    category: trigger-test
-    variant: should-trigger
-  graders:
-  - type: skill-invocation
-    config:
-      required: [sensei]
+      required: [markdown-token-optimizer]
 - name: trigger-negative-001
   prompt: deploy my Azure Function
   tags:
@@ -125,7 +117,7 @@ stimuli:
   graders:
   - type: skill-invocation
     config:
-      disallowed: [sensei]
+      disallowed: [markdown-token-optimizer]
 - name: trigger-negative-002
   prompt: fix my pipeline build error
   tags:
@@ -134,7 +126,7 @@ stimuli:
   graders:
   - type: skill-invocation
     config:
-      disallowed: [sensei]
+      disallowed: [markdown-token-optimizer]
 - name: trigger-negative-003
   prompt: create a new TypeSpec definition
   tags:
@@ -143,7 +135,7 @@ stimuli:
   graders:
   - type: skill-invocation
     config:
-      disallowed: [sensei]
+      disallowed: [markdown-token-optimizer]
 - name: trigger-negative-004
   prompt: how do I release an SDK package
   tags:
@@ -152,15 +144,15 @@ stimuli:
   graders:
   - type: skill-invocation
     config:
-      disallowed: [sensei]
+      disallowed: [markdown-token-optimizer]
 - name: trigger-negative-005
-  prompt: configure Azure Storage geo-redundancy
+  prompt: review my API design
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
   - type: skill-invocation
     config:
-      disallowed: [sensei]
+      disallowed: [markdown-token-optimizer]
 scoring:
   threshold: 0.7

@@ -2,9 +2,9 @@ name: generate-sdk-locally-eval
 description: Evaluation suite for local SDK generation skill.
 version: '1.0'
 type: capability
-environment:
-  skills:
-  - .
+tags:
+  priority: p0
+environment: azsdk-mcp
 config:
   runs: 1
   timeout: 600

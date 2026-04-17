@@ -33,13 +33,17 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies (Vally from GitHub Packages)
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm install
+      - name: Configure GitHub Packages registry
+        run: npm config --location project set "@microsoft:registry" "https://npm.pkg.github.com"
+
+      - name: Authenticate with GitHub Packages
+        run: npm config --location project set "//npm.pkg.github.com/:_authToken" "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Install Vally CLI
+        run: npm install -g @microsoft/vally-cli
 
       - name: Lint skills
-        run: npm run lint:skills
+        run: vally lint
 
   run-evals:
     name: Run Skill Evaluations (Vally eval)
@@ -75,11 +79,17 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies (Vally from GitHub Packages)
+      - name: Configure GitHub Packages registry
         if: steps.changes.outputs.SHOULD_RUN == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm install
+        run: npm config --location project set "@microsoft:registry" "https://npm.pkg.github.com"
+
+      - name: Authenticate with GitHub Packages
+        if: steps.changes.outputs.SHOULD_RUN == 'true'
+        run: npm config --location project set "//npm.pkg.github.com/:_authToken" "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Install Vally CLI
+        if: steps.changes.outputs.SHOULD_RUN == 'true'
+        run: npm install -g @microsoft/vally-cli
 
       - name: Run evaluations
         if: steps.changes.outputs.SHOULD_RUN == 'true'
@@ -92,7 +102,7 @@ jobs:
             if [ -f "$eval_file" ]; then
               skill_name=$(basename "$(dirname "$eval_file")")
               echo "=== Running evals for $skill_name ==="
-              npx vally eval -e "$eval_file" --output-dir ".vally/results/${skill_name}" || true
+              vally eval -e "$eval_file" --output-dir ".vally/results/${skill_name}" || true
             fi
           done
 

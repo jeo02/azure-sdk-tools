@@ -2,9 +2,9 @@ name: apiview-feedback-resolution-eval
 description: Evaluation suite for APIView feedback resolution skill.
 version: '1.0'
 type: capability
-environment:
-  skills:
-  - .
+tags:
+  priority: p0
+environment: azsdk-mcp
 config:
   runs: 1
   timeout: 300

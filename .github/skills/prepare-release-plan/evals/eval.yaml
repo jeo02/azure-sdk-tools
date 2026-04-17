@@ -1,186 +1,174 @@
-name: pipeline-troubleshooting-eval
-description: Evaluation suite for pipeline troubleshooting skill.
+name: prepare-release-plan-eval
+description: Evaluation suite for release plan management skill.
 version: '1.0'
 type: capability
-environment:
-  skills:
-  - .
+tags:
+  priority: p0
+environment: azsdk-mcp
 config:
   runs: 1
   timeout: 300
   model: gpt-4o
   executor: copilot-sdk
 stimuli:
-- name: pipeline-basic-001
-  prompt: My SDK generation pipeline failed for the Python language. The pipeline URL is https://dev.azure.com/azure-sdk/internal/_build/results?buildId=12345.
-    Can you help me figure out what went wrong?
+- name: release-plan-basic-001
+  prompt: I need to create a release plan for my API spec PR https://github.com/Azure/azure-rest-api-specs/pull/12345. The
+    API version is 2024-06-01 and it's a stable release.
   tags:
     category: basic
     variant: happy-path
   graders:
   - type: output-contains
     config:
-      substring: pipeline
+      substring: Service Tree
   - type: output-contains
     config:
-      substring: Python
+      substring: release plan
   constraints:
-    expect_tools:
-    - azsdk_analyze_pipeline
     max_turns: 5
-- name: pipeline-edge-001
-  prompt: My SDK generation pipeline failed for both Python and Java but succeeded for .NET and JavaScript. How do I fix the
-    failing languages?
+- name: release-plan-edge-001
+  prompt: 'Update the release plan with these SDK details: JavaScript package ''arm-compute'' and Go package ''sdk/armcompute''.'
   tags:
     category: edge-case
-    feature: multi-language
+    feature: validation
   graders:
   - type: output-contains
     config:
-      substring: Python
-  - type: output-contains
-    config:
-      substring: Java
-  - type: output-not-contains
-    config:
-      substring: cannot help
+      substring: '@azure/'
   constraints:
-    max_turns: 5
-- name: pipeline-repro-001
-  prompt: The CI pipeline for my Go SDK PR is failing with a compilation error. I want to reproduce this locally to debug
-    it.
+    max_turns: 3
+- name: release-plan-link-001
+  prompt: 'I have release plan 67890 and SDK PRs for Python (PR #100) and .NET (PR #200) in the azure-sdk repos. Link them
+    to the release plan.'
   tags:
     category: basic
-    variant: local-repro
+    variant: linking
   graders:
   - type: output-contains
     config:
-      substring: local
+      substring: link
   - type: output-contains
     config:
-      substring: Go
-  - type: output-contains
-    config:
-      substring: build
+      substring: release plan
   constraints:
     max_turns: 5
-- name: pipeline-negative-001
-  prompt: How do I define a new REST operation in my TypeSpec project?
+- name: release-plan-negative-001
+  prompt: Release the azure-mgmt-compute Python package to PyPI now.
   tags:
     category: negative-test
     variant: anti-trigger
   graders:
   - type: output-not-contains
     config:
-      substring: azsdk_analyze_pipeline
+      substring: azsdk_create_release_plan
   - type: output-not-contains
     config:
-      substring: pipeline failure
+      substring: Service Tree ID
   constraints:
     reject_tools:
-    - azsdk_analyze_pipeline
+    - azsdk_create_release_plan
 - name: anti-trigger
-  prompt: How do I write a TypeSpec definition for a new Azure service?
+  prompt: How do I configure logging in my Azure Function?
   graders:
   - type: skill-invocation
     config:
-      disallowed: [pipeline-troubleshooting]
+      disallowed: [prepare-release-plan]
   - type: output-not-contains
     config:
-      substring: pipeline
+      substring: release plan
   - type: output-not-contains
     config:
-      substring: CI failure
+      substring: changelog
 - name: basic-trigger
-  prompt: My Azure SDK CI pipeline is failing. Can you help me debug it?
+  prompt: I need to prepare a release plan for the new Azure SDK package version
   graders:
   - type: skill-invocation
     config:
-      required: [pipeline-troubleshooting]
+      required: [prepare-release-plan]
   - type: output-contains
     config:
-      substring: pipeline
+      substring: release
 - name: trigger-positive-001
-  prompt: my CI pipeline is failing
+  prompt: prepare a release plan
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [pipeline-troubleshooting]
+      required: [prepare-release-plan]
 - name: trigger-positive-002
-  prompt: debug pipeline build error
+  prompt: plan the next SDK release
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [pipeline-troubleshooting]
+      required: [prepare-release-plan]
 - name: trigger-positive-003
-  prompt: pipeline troubleshooting help
+  prompt: create release plan for my package
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [pipeline-troubleshooting]
+      required: [prepare-release-plan]
 - name: trigger-positive-004
-  prompt: fix failing SDK pipeline
+  prompt: what goes in a release plan
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [pipeline-troubleshooting]
+      required: [prepare-release-plan]
 - name: trigger-positive-005
-  prompt: CI build broke after my change
+  prompt: help me prepare for SDK release
   tags:
     category: trigger-test
     variant: should-trigger
   graders:
   - type: skill-invocation
     config:
-      required: [pipeline-troubleshooting]
+      required: [prepare-release-plan]
 - name: trigger-negative-001
-  prompt: write a TypeSpec definition
+  prompt: deploy my Azure Function
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
   - type: skill-invocation
     config:
-      disallowed: [pipeline-troubleshooting]
+      disallowed: [prepare-release-plan]
 - name: trigger-negative-002
-  prompt: create a new skill
+  prompt: fix my pipeline build error
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
   - type: skill-invocation
     config:
-      disallowed: [pipeline-troubleshooting]
+      disallowed: [prepare-release-plan]
 - name: trigger-negative-003
-  prompt: optimize markdown tokens
+  prompt: create a new TypeSpec definition
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
   - type: skill-invocation
     config:
-      disallowed: [pipeline-troubleshooting]
+      disallowed: [prepare-release-plan]
 - name: trigger-negative-004
-  prompt: how do I release an SDK package
+  prompt: configure Azure logging
   tags:
     category: trigger-test
     variant: should-not-trigger
   graders:
   - type: skill-invocation
     config:
-      disallowed: [pipeline-troubleshooting]
+      disallowed: [prepare-release-plan]
 - name: trigger-negative-005
   prompt: resolve APIView feedback
   tags:
@@ -189,6 +177,6 @@ stimuli:
   graders:
   - type: skill-invocation
     config:
-      disallowed: [pipeline-troubleshooting]
+      disallowed: [prepare-release-plan]
 scoring:
   threshold: 0.7
