@@ -34,10 +34,9 @@ jobs:
           node-version: '20'
 
       - name: Configure GitHub Packages registry
-        run: npm config --location project set "@microsoft:registry" "https://npm.pkg.github.com"
-
-      - name: Authenticate with GitHub Packages
-        run: npm config --location project set "//npm.pkg.github.com/:_authToken" "${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          npm config set "@microsoft:registry" "https://npm.pkg.github.com"
+          npm config set "//npm.pkg.github.com/:_authToken" "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Install Vally CLI
         run: npm install -g @microsoft/vally-cli
@@ -81,11 +80,9 @@ jobs:
 
       - name: Configure GitHub Packages registry
         if: steps.changes.outputs.SHOULD_RUN == 'true'
-        run: npm config --location project set "@microsoft:registry" "https://npm.pkg.github.com"
-
-      - name: Authenticate with GitHub Packages
-        if: steps.changes.outputs.SHOULD_RUN == 'true'
-        run: npm config --location project set "//npm.pkg.github.com/:_authToken" "${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          npm config set "@microsoft:registry" "https://npm.pkg.github.com"
+          npm config set "//npm.pkg.github.com/:_authToken" "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Install Vally CLI
         if: steps.changes.outputs.SHOULD_RUN == 'true'
