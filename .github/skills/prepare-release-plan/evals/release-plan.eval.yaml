@@ -1,0 +1,25 @@
+name: get-release-plan-eval
+description: Evaluation for retrieving an existing release plan.
+version: '1.0'
+type: capability
+tags:
+  priority: p0
+environment: azsdk-mcp
+config:
+  runs: 5
+  timeout: 300
+  model: claude-opus-4.6
+  executor: copilot-sdk
+stimuli:
+- name: get-release-plan-basic-001
+  prompt: Get me release plan ID 12345
+  tags:
+    category: basic
+    variant: happy-path
+  graders:
+  - type: tool-calls
+    config:
+      required:
+        - name: "azure-sdk-mcp-azsdk_get_release_plan"
+  constraints:
+    max_turns: 5
