@@ -266,7 +266,7 @@ namespace Azure.Sdk.Tools.Cli.Tests.Tools.ReleasePlan
             Assert.IsNotNull(releaseplan);
             Assert.IsNull(releaseplan.ResponseError, $"Unexpected error: {releaseplan.ResponseError}");
             Assert.IsNotNull(releaseplan.ReleasePlanDetails);
-            Assert.IsNotNull(releaseplan.ReleasePlanDetails.WorkItemId);
+            Assert.Greater(releaseplan.ReleasePlanDetails.WorkItemId, 0);
         }
 
         [Test]
@@ -955,6 +955,20 @@ namespace Azure.Sdk.Tools.Cli.Tests.Tools.ReleasePlan
                 typeSpecProjectPath: "TypeSpecTestData/specification/testcontoso/Contoso.Management",
                 sdkReleaseType: "beta",
                 specPullRequestUrl: "https://github.com/Azure/azure-rest-api-specs/pull/35446",
+                workItemId: 100);
+
+            Assert.IsNull(result.ResponseError, $"Unexpected error: {result.ResponseError}");
+            Assert.That(result.Message, Does.Contain("Successfully updated release plan"));
+            Assert.IsNotNull(result.ReleasePlanDetails);
+            Assert.That(result.TypeSpecProject, Does.Contain("specification/testcontoso/Contoso.Management"));
+        }
+
+        [Test]
+        public async Task Test_UpdateReleasePlan_without_spec_pr()
+        {
+            var result = await releasePlanTool.UpdateReleasePlan(
+                typeSpecProjectPath: "TypeSpecTestData/specification/testcontoso/Contoso.Management",
+                sdkReleaseType: "beta",
                 workItemId: 100);
 
             Assert.IsNull(result.ResponseError, $"Unexpected error: {result.ResponseError}");
