@@ -293,7 +293,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                 updateTypeSpecProjectPathOpt,
                 workItemIdOpt,
                 updateSdkReleaseTypeOpt,
-                pullRequestOpt,
+                optionalPullRequestOpt,
                 optionalServiceTreeIdOpt,
                 optionalProductTreeIdOpt,
             },
@@ -363,7 +363,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                         typeSpecProjectPath: commandParser.GetValue(updateTypeSpecProjectPathOpt),
                         workItemId: commandParser.GetValue(workItemIdOpt),
                         sdkReleaseType: commandParser.GetValue(updateSdkReleaseTypeOpt),
-                        specPullRequestUrl: commandParser.GetValue(pullRequestOpt),
+                        specPullRequestUrl: commandParser.GetValue(optionalPullRequestOpt),
                         serviceTreeId: commandParser.GetValue(optionalServiceTreeIdOpt),
                         productTreeId: commandParser.GetValue(optionalProductTreeIdOpt),
                         ct: ct
@@ -524,7 +524,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
         /// </summary>
         [McpServerTool(Name = UpdateReleasePlanToolName), Description("Update an existing release plan. Updates spec PR URL, TypeSpec project path, SDK release type, and optionally service/product IDs. " +
             "Runs TypeSpec metadata emitter to resolve package names and updates SDK details. If work item ID is not provided, finds the active release plan by TypeSpec project path or spec PR URL.")]
-        public async Task<ReleasePlanResponse> UpdateReleasePlan(string typeSpecProjectPath, string specPullRequestUrl, string sdkReleaseType = "", int workItemId = 0, string serviceTreeId = "", string productTreeId = "", CancellationToken ct = default)
+        public async Task<ReleasePlanResponse> UpdateReleasePlan(string typeSpecProjectPath, string specPullRequestUrl = "", string sdkReleaseType = "", int workItemId = 0, string serviceTreeId = "", string productTreeId = "", CancellationToken ct = default)
         {
             try
             {
@@ -546,7 +546,10 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     return new ReleasePlanResponse { ResponseError = $"Invalid SDK release type. Supported release types are: {string.Join(", ", supportedReleaseTypes)}" };
                 }
 
-                ValidatePullRequestUrl(specPullRequestUrl);
+                if (!string.IsNullOrEmpty(specPullRequestUrl))
+                {
+                    ValidatePullRequestUrl(specPullRequestUrl);
+                }
 
                 if (string.IsNullOrEmpty(typeSpecProjectPath))
                 {
@@ -601,7 +604,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     releasePlan = await devOpsService.GetReleasePlanByTypeSpecProjectPathAsync(specProject, ct: ct);
                 }
 
-                if (releasePlan == null)
+                if (releasePlan == null && !string.IsNullOrEmpty(specPullRequestUrl))
                 {
                     // Try to find by spec PR URL
                     logger.LogInformation("Release plan not found by TypeSpec project path, searching by spec PR URL: {specPullRequestUrl}", specPullRequestUrl);
@@ -635,8 +638,9 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                 await devOpsService.UpdateWorkItemAsync(releasePlan.WorkItemId, fieldsToUpdate, ct);
                 logger.LogInformation("Updated release plan fields for work item {WorkItemId}", releasePlan.WorkItemId);
 
-                // Update spec PR on the API spec child work item only if not already set or different
-                if (string.IsNullOrEmpty(releasePlan.ActiveSpecPullRequest) || !releasePlan.ActiveSpecPullRequest.Equals(specPullRequestUrl, StringComparison.OrdinalIgnoreCase))
+                // Update spec PR on the API spec child work item only if provided and different from current
+                if (!string.IsNullOrEmpty(specPullRequestUrl) &&
+                    (string.IsNullOrEmpty(releasePlan.ActiveSpecPullRequest) || !releasePlan.ActiveSpecPullRequest.Equals(specPullRequestUrl, StringComparison.OrdinalIgnoreCase)))
                 {
                     await devOpsService.UpdateSpecPullRequestAsync(releasePlan.WorkItemId, specPullRequestUrl, ct);
                     logger.LogInformation("Updated spec PR URL in release plan {WorkItemId}", releasePlan.WorkItemId);
