@@ -20,12 +20,13 @@ on:
 
 permissions:
   contents: read
-  packages: read
+  id-token: write
 
 jobs:
   check-skills:
     name: Skill Compliance Check (Vally lint)
     runs-on: ubuntu-latest
+    environment: AzureSDKEngKeyVault
     steps:
       - uses: actions/checkout@v6
 
@@ -33,10 +34,20 @@ jobs:
         with:
           node-version: '20'
 
+      - uses: azure/login@v2
+        with:
+          client-id: 5786d1fb-187e-4ca9-9a81-ab89ea278986
+          tenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+          subscription-id: a18897a6-7e44-457d-9260-f2854c0aca42
+
+      - uses: ./eng/common/actions/login-to-github
+        with:
+          token-owners: microsoft
+
       - name: Configure GitHub Packages registry
         run: |
           npm config set "@microsoft:registry" "https://npm.pkg.github.com"
-          npm config set "//npm.pkg.github.com/:_authToken" "${{ secrets.GITHUB_TOKEN }}"
+          npm config set "//npm.pkg.github.com/:_authToken" "${{ env.GH_TOKEN }}"
 
       - name: Install Vally CLI
         run: npm install -g @microsoft/vally-cli
@@ -47,6 +58,7 @@ jobs:
   run-evals:
     name: Run Skill Evaluations (Vally eval)
     runs-on: ubuntu-latest
+    environment: AzureSDKEngKeyVault
     needs: check-skills
     steps:
       - uses: actions/checkout@v6
@@ -78,11 +90,23 @@ jobs:
         with:
           node-version: '20'
 
+      - uses: azure/login@v2
+        if: steps.changes.outputs.SHOULD_RUN == 'true'
+        with:
+          client-id: 5786d1fb-187e-4ca9-9a81-ab89ea278986
+          tenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+          subscription-id: a18897a6-7e44-457d-9260-f2854c0aca42
+
+      - uses: ./eng/common/actions/login-to-github
+        if: steps.changes.outputs.SHOULD_RUN == 'true'
+        with:
+          token-owners: microsoft
+
       - name: Configure GitHub Packages registry
         if: steps.changes.outputs.SHOULD_RUN == 'true'
         run: |
           npm config set "@microsoft:registry" "https://npm.pkg.github.com"
-          npm config set "//npm.pkg.github.com/:_authToken" "${{ secrets.GITHUB_TOKEN }}"
+          npm config set "//npm.pkg.github.com/:_authToken" "${{ env.GH_TOKEN }}"
 
       - name: Install Vally CLI
         if: steps.changes.outputs.SHOULD_RUN == 'true'
