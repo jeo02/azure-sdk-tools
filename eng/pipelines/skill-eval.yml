@@ -1,0 +1,100 @@
+# NOTE: Please refer to https://aka.ms/azsdk/engsys/ci-yaml before editing this file.
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - .github/skills
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - .github/skills
+
+variables:
+  - template: /eng/pipelines/templates/variables/globals.yml
+
+stages:
+  - stage: LintSkills
+    displayName: Skill Compliance Check
+    jobs:
+      - job: Lint
+        displayName: Vally Lint
+        variables:
+          - group: 'AzSDK_Eval_Variable_group'
+        pool:
+          name: azsdk-pool
+          image: ubuntu-24.04
+          os: linux
+        steps:
+          - checkout: self
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '20.x'
+            displayName: Install Node.js
+
+          - script: |
+              npm config set "@microsoft:registry" "https://npm.pkg.github.com"
+              npm config set "//npm.pkg.github.com/:_authToken" "$(azsdk-microsoft-package-github-token)"
+            displayName: Configure GitHub Packages registry
+
+          - script: npm install -g @microsoft/vally-cli
+            displayName: Install Vally CLI
+
+          - script: vally lint
+            displayName: Lint skills
+            workingDirectory: .github/skills
+
+  - stage: RunEvals
+    displayName: Run Skill Evaluations
+    dependsOn: LintSkills
+    jobs:
+      - job: Evals
+        displayName: Vally Eval
+        variables:
+          - group: 'AzSDK_Eval_Variable_group'
+        pool:
+          name: azsdk-pool
+          image: ubuntu-24.04
+          os: linux
+        steps:
+          - checkout: self
+            fetchDepth: 0
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '20.x'
+            displayName: Install Node.js
+
+          - script: |
+              npm config set "@microsoft:registry" "https://npm.pkg.github.com"
+              npm config set "//npm.pkg.github.com/:_authToken" "$(azsdk-microsoft-package-github-token)"
+            displayName: Configure GitHub Packages registry
+
+          - script: npm install -g @microsoft/vally-cli
+            displayName: Install Vally CLI
+
+          - script: |
+              mkdir -p $(Build.ArtifactStagingDirectory)/eval-results
+              for eval_file in .github/skills/*/evals/eval.yaml; do
+                if [ -f "$eval_file" ]; then
+                  skill_name=$(basename "$(dirname "$(dirname "$eval_file")")")
+                  echo "=== Running evals for $skill_name ==="
+                  vally eval -e "$eval_file" --output-dir "$(Build.ArtifactStagingDirectory)/eval-results/${skill_name}" || true
+                fi
+              done
+            displayName: Run evaluations
+            continueOnError: true
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish eval results
+            condition: always()
+            inputs:
+              artifactName: eval-results
+              targetPath: $(Build.ArtifactStagingDirectory)/eval-results
