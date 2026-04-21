@@ -27,6 +27,9 @@ jobs:
     name: Skill Compliance Check (Vally lint)
     runs-on: ubuntu-latest
     environment: AzureSDKEngKeyVault
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
@@ -59,6 +62,9 @@ jobs:
     name: Run Skill Evaluations (Vally eval)
     runs-on: ubuntu-latest
     environment: AzureSDKEngKeyVault
+    permissions:
+      contents: read
+      id-token: write
     needs: check-skills
     steps:
       - uses: actions/checkout@v6
