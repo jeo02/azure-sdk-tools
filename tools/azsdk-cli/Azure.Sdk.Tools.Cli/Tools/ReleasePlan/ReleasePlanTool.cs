@@ -310,7 +310,7 @@ namespace Azure.Sdk.Tools.Cli.Tools.ReleasePlan
                     var releasePlanNumber = commandParser.GetValue(releasePlanNumberOpt);
                     var getPullRequest = commandParser.GetValue(optionalPullRequestOpt);
                     var getTypeSpecPath = commandParser.GetValue(optionalTypeSpecProjectPathOpt);
-                    return await GetReleasePlan(workItemId: workItemId, releasePlanId: releasePlanNumber, specPullRequestUrl: getPullRequest, typeSpecProjectPath: getTypeSpecPath, ct: ct);
+                    return await GetReleasePlan(releasePlanId: releasePlanNumber, workItemId: workItemId, specPullRequestUrl: getPullRequest, typeSpecProjectPath: getTypeSpecPath, ct: ct);
 
                 case createReleasePlanCommandName:
                     var typeSpecProjectPath = commandParser.GetValue(typeSpecProjectPathOpt);
