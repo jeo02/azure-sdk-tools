@@ -5,11 +5,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Azure.Sdk.Tools.Cli.Commands;
-using Azure.Sdk.Tools.Mock.Handlers;
+using Azure.Sdk.Tools.Cli.Mock.Handlers;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
-namespace Azure.Sdk.Tools.Mock;
+namespace Azure.Sdk.Tools.Cli.Mock;
 
 /// <summary>
 /// Registers mock MCP tools by reflecting over <see cref="SharedOptions.ToolsList"/>,
@@ -22,10 +22,13 @@ public static class MockToolRegistrations
     {
         foreach (var toolType in SharedOptions.ToolsList)
         {
-            if (toolType is null) continue;
+            if (toolType is null)
+            {
+                continue;
+            }
 
             var toolMethods = toolType
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
                 .Where(m => m.GetCustomAttribute<McpServerToolAttribute>() is not null);
 
             foreach (var toolMethod in toolMethods)
@@ -52,7 +55,9 @@ public static class MockToolRegistrations
 /// <see cref="MockToolFactory"/> instead of executing the real tool logic.
 /// Preserves the original tool's protocol metadata (name, description, input schema).
 /// </summary>
+#pragma warning disable CS9107 // Parameter is captured into the state and also passed to base — intentional
 internal class MockMcpServerTool(McpServerTool innerTool, MockToolFactory factory) : DelegatingMcpServerTool(innerTool)
+#pragma warning restore CS9107
 {
     public override IReadOnlyList<object> Metadata => innerTool.Metadata;
 

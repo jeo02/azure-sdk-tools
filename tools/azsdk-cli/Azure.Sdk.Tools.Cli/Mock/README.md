@@ -1,14 +1,15 @@
-# Azure.Sdk.Tools.Mock
+# Mock MCP Server
 
-A mock MCP server that exposes the same tools as the real `Azure.Sdk.Tools.Cli` but returns canned responses instead of executing real logic. Useful for benchmarking, evaluation, and integration testing without requiring live Azure services or dependencies.
+The `--mock` flag starts the CLI as a mock MCP server that exposes the same tools as the real CLI but returns canned responses instead of executing real logic. Useful for benchmarking, evaluation, and integration testing without requiring live Azure services or dependencies.
 
 ## How It Works
 
-The mock server reuses the real CLI's tool definitions (`SharedOptions.ToolsList`) via a project reference. At startup it:
+When started with `mcp --mock`, the CLI takes a separate startup path that:
 
-1. **Reflects** over all tool classes to find methods marked with `[McpServerTool]`
+1. **Reflects** over all tool classes in `SharedOptions.ToolsList` to find methods marked with `[McpServerTool]`
 2. **Creates** real `McpServerTool` instances to capture full metadata (name, description, input schema)
 3. **Wraps** each tool in a `MockMcpServerTool` that intercepts all calls and routes them through a `MockToolFactory`
+4. **Bypasses** all real service registrations (no Azure, GitHub, DevOps, or AI service dependencies)
 
 When a tool is called:
 - If a custom `IMockToolHandler` exists for that tool name → the handler produces the response
@@ -24,7 +25,7 @@ The MCP client sees the exact same tool list and schemas as the real CLI — onl
 ### From the command line
 
 ```bash
-dotnet run --project tools/azsdk-cli/Azure.Sdk.Tools.Mock
+dotnet run --project tools/azsdk-cli/Azure.Sdk.Tools.Cli -- mcp --mock
 ```
 
 ### As an MCP server in VS Code
@@ -37,7 +38,7 @@ Add to `.vscode/mcp.json`:
     "azure-sdk-mock": {
       "type": "stdio",
       "command": "dotnet",
-      "args": ["run", "--project", "./tools/azsdk-cli/Azure.Sdk.Tools.Mock"]
+      "args": ["run", "--project", "./tools/azsdk-cli/Azure.Sdk.Tools.Cli", "--configuration", "Debug", "--", "mcp", "--mock"]
     }
   }
 }
@@ -45,11 +46,13 @@ Add to `.vscode/mcp.json`:
 
 ## Adding a Custom Handler
 
-To provide a tool-specific mock response instead of the default, create a class that implements `IMockToolHandler` in the `Handlers/` directory.
+To provide a tool-specific mock response instead of the default, create a class that implements `IMockToolHandler` in the `Mock/` directory.
+
+### Step 1: Create the handler
 
 ```csharp
-// Handlers/MyToolHandler.cs
-namespace Azure.Sdk.Tools.Mock.Handlers;
+// Mock/MyToolHandler.cs
+namespace Azure.Sdk.Tools.Cli.Mock;
 
 public class MyToolHandler : IMockToolHandler
 {
@@ -66,6 +69,10 @@ public class MyToolHandler : IMockToolHandler
     }
 }
 ```
+
+### Step 2: That's it
+
+The `MockToolFactory` auto-discovers all `IMockToolHandler` implementations in the assembly at startup. No registration code is needed.
 
 ## Argument-Based Switching
 

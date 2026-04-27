@@ -6,6 +6,7 @@ using Azure.Sdk.Tools.Cli.Helpers;
 using Azure.Sdk.Tools.Cli.Services;
 using Azure.Sdk.Tools.Cli.Services.Upgrade;
 using Azure.Sdk.Tools.Cli.Telemetry;
+using Azure.Sdk.Tools.Cli.Mock;
 
 namespace Azure.Sdk.Tools.Cli;
 
@@ -23,12 +24,39 @@ public class Program
         var (outputFormat, debug) = SharedOptions.GetGlobalOptionValues(args);
         logLevel ??= debug ? LogLevel.Debug : LogLevel.Information;
 
+        // Mock mode: lightweight MCP server that returns canned responses.
+        // Bypasses CommandRunner and all real service registrations.
+        if (IsMockMode(args))
+        {
+            return await RunMockServer(args, ct);
+        }
+
         ServerApp = CreateAppBuilder(args, outputFormat, logLevel.Value, debug).Build();
         return await CommandRunner.BuildAndRun(args, ServerApp.Services, debug, ct);
     }
 
     // todo: make this honor subcommands of `start` and the like, instead of simply looking presence of `start` verb
     public static bool IsCommandLine(string[] args) => !args.Select(x => x.Trim().ToLowerInvariant()).Any(x => x == "start" || x == "mcp");
+
+    public static bool IsMockMode(string[] args) => !IsCommandLine(args)
+        && args.Select(x => x.Trim().ToLowerInvariant()).Any(x => x == "--mock");
+
+    private static async Task<int> RunMockServer(string[] args, CancellationToken ct)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+        builder.Logging.SetMinimumLevel(LogLevel.Warning);
+
+        builder.Services.AddSingleton<MockToolFactory>();
+        MockToolRegistrations.RegisterMockMcpTools(builder.Services);
+
+        builder.Services
+            .AddMcpServer()
+            .WithStdioServerTransport();
+
+        ServerApp = builder.Build();
+        await ServerApp.RunAsync(ct);
+        return 0;
+    }
 
     public static WebApplicationBuilder CreateAppBuilder(string[] args, string outputFormat, LogLevel logLevel, bool debug = false)
     {

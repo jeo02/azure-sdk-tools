@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Azure.Sdk.Tools.Mock.Handlers;
+namespace Azure.Sdk.Tools.Cli.Mock.Handlers;
 
 /// <summary>
 /// Example custom handler for the azsdk_hello_world tool.

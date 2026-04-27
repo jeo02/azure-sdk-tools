@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
+using Azure.Sdk.Tools.Cli.Mock.Handlers;
 
-namespace Azure.Sdk.Tools.Mock.Handlers;
+namespace Azure.Sdk.Tools.Cli.Mock;
 
 /// <summary>
 /// Registry that auto-discovers <see cref="IMockToolHandler"/> implementations
@@ -35,7 +36,7 @@ public class MockToolFactory
     {
         return new
         {
-            message = $"Success",
+            message = $"Mock response for {toolName}",
             operation_status = "Succeeded"
         };
     }
