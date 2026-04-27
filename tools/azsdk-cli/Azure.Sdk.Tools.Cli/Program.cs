@@ -6,7 +6,7 @@ using Azure.Sdk.Tools.Cli.Helpers;
 using Azure.Sdk.Tools.Cli.Services;
 using Azure.Sdk.Tools.Cli.Services.Upgrade;
 using Azure.Sdk.Tools.Cli.Telemetry;
-using Azure.Sdk.Tools.Cli.Mock;
+using Azure.Sdk.Tools.Cli.MockServer;
 
 namespace Azure.Sdk.Tools.Cli;
 

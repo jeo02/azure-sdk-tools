@@ -5,11 +5,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Azure.Sdk.Tools.Cli.Commands;
-using Azure.Sdk.Tools.Cli.Mock.Handlers;
+using Azure.Sdk.Tools.Cli.MockServer.Handlers;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
-namespace Azure.Sdk.Tools.Cli.Mock;
+namespace Azure.Sdk.Tools.Cli.MockServer;
 
 /// <summary>
 /// Registers mock MCP tools by reflecting over <see cref="SharedOptions.ToolsList"/>,

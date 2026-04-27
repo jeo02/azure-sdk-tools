@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
-using Azure.Sdk.Tools.Cli.Mock.Handlers;
+using Azure.Sdk.Tools.Cli.MockServer.Handlers;
 
-namespace Azure.Sdk.Tools.Cli.Mock;
+namespace Azure.Sdk.Tools.Cli.MockServer;
 
 /// <summary>
 /// Registry that auto-discovers <see cref="IMockToolHandler"/> implementations
