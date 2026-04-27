@@ -36,7 +36,7 @@ public class MockToolFactory
     {
         return new
         {
-            message = $"Mock response for {toolName}",
+            message = "Success",
             operation_status = "Succeeded"
         };
     }

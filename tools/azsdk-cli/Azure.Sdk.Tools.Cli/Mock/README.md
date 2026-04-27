@@ -15,7 +15,7 @@ When a tool is called:
 - If a custom `IMockToolHandler` exists for that tool name → the handler produces the response
 - Otherwise → a default success response is returned:
   ```json
-  { "message": "Mock response for <tool_name>", "operation_status": "Succeeded" }
+  { "message": "Success", "operation_status": "Succeeded" }
   ```
 
 The MCP client sees the exact same tool list and schemas as the real CLI — only the responses differ.
