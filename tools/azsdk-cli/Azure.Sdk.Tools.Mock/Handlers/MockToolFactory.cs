@@ -32,7 +32,7 @@ public class MockToolFactory
     /// Produces the default mock response used when no custom handler is registered.
     /// Matches the shape of <c>DefaultCommandResponse</c> from the real CLI.
     /// </summary>
-    public static DefaultCommandResponse GetDefaultResponse()
+    public static CommandResponse GetDefaultResponse()
     {
         return new DefaultCommandResponse { Message = "Success" };
     }

@@ -21,6 +21,6 @@ public interface IMockToolHandler
     /// Produce a mock response for the given tool invocation arguments.
     /// </summary>
     /// <param name="arguments">The arguments passed by the MCP client, or null if none.</param>
-    /// <returns>A <see cref="DefaultCommandResponse"/> that will be JSON-serialized back to the caller.</returns>
-    DefaultCommandResponse Handle(Dictionary<string, object?>? arguments);
+    /// <returns>A <see cref="CommandResponse"/> that will be JSON-serialized back to the caller.</returns>
+    CommandResponse Handle(Dictionary<string, object?>? arguments);
 }
