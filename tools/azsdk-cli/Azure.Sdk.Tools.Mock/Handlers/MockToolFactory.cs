@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
+using Azure.Sdk.Tools.Cli.Models;
 
 namespace Azure.Sdk.Tools.Mock.Handlers;
 
@@ -31,13 +32,9 @@ public class MockToolFactory
     /// Produces the default mock response used when no custom handler is registered.
     /// Matches the shape of <c>DefaultCommandResponse</c> from the real CLI.
     /// </summary>
-    public static object GetDefaultResponse()
+    public static DefaultCommandResponse GetDefaultResponse()
     {
-        return new
-        {
-            message = $"Success",
-            operation_status = "Succeeded"
-        };
+        return new DefaultCommandResponse { Message = "Success" };
     }
 
     private void DiscoverHandlers()

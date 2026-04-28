@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Sdk.Tools.Cli.Models;
+
 namespace Azure.Sdk.Tools.Mock.Handlers;
 
 /// <summary>
@@ -19,6 +21,6 @@ public interface IMockToolHandler
     /// Produce a mock response for the given tool invocation arguments.
     /// </summary>
     /// <param name="arguments">The arguments passed by the MCP client, or null if none.</param>
-    /// <returns>A response object that will be JSON-serialized back to the caller.</returns>
-    object Handle(Dictionary<string, object?>? arguments);
+    /// <returns>A <see cref="DefaultCommandResponse"/> that will be JSON-serialized back to the caller.</returns>
+    DefaultCommandResponse Handle(Dictionary<string, object?>? arguments);
 }
