@@ -8,7 +8,7 @@ namespace Azure.Sdk.Tools.Mock.Handlers.ReleasePlan;
 
 /// <summary>
 /// Mock handler for azsdk_run_generate_sdk.
-/// Switches on language — returns a queued pipeline response for known languages, default otherwise.
+/// Switches on apiVersion — returns a queued pipeline response for the expected version, default otherwise.
 /// </summary>
 public class RunGenerateSdkHandler : IMockToolHandler
 {
@@ -16,24 +16,24 @@ public class RunGenerateSdkHandler : IMockToolHandler
 
     public CommandResponse Handle(Dictionary<string, object?>? arguments)
     {
-        var language = arguments?.GetValueOrDefault("language")?.ToString() ?? "";
+        var apiVersion = arguments?.GetValueOrDefault("apiVersion")?.ToString() ?? "";
 
-        return language.ToLowerInvariant() switch
+        return apiVersion switch
         {
-            ".net" => QueuedPipelineResponse(language),
+            "2024-01-01-preview" => QueuedPipelineResponse(),
             _ => MockToolFactory.GetDefaultResponse()
         };
     }
 
-    private static ReleaseWorkflowResponse QueuedPipelineResponse(string language) => new()
+    private static ReleaseWorkflowResponse QueuedPipelineResponse() => new()
     {
-        Language = SdkLanguageHelpers.GetSdkLanguage(language),
+        Language = SdkLanguage.DotNet,
         Status = "Queued",
         TypeSpecProject = "specification/contosowidgetmanager/Contoso.WidgetManager",
         Details =
         [
-            $"SDK generation pipeline triggered for {language}",
-            $"Pipeline build ID: 90001",
+            "SDK generation pipeline triggered",
+            "Pipeline build ID: 90001",
             "Monitor status using azsdk_get_pipeline_status"
         ]
     };

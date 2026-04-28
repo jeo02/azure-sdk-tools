@@ -8,7 +8,7 @@ namespace Azure.Sdk.Tools.Mock.Handlers.ReleasePlan;
 
 /// <summary>
 /// Mock handler for azsdk_get_sdk_pull_request_link.
-/// Switches on language — returns a PR link response for known languages, default otherwise.
+/// Switches on workItemId — returns a PR link response for the expected work item, default otherwise.
 /// </summary>
 public class GetSdkPullRequestLinkHandler : IMockToolHandler
 {
@@ -16,24 +16,24 @@ public class GetSdkPullRequestLinkHandler : IMockToolHandler
 
     public CommandResponse Handle(Dictionary<string, object?>? arguments)
     {
-        var language = arguments?.GetValueOrDefault("language")?.ToString() ?? "";
+        var workItemId = arguments?.GetValueOrDefault("workItemId")?.ToString() ?? "0";
 
-        return language.ToLowerInvariant() switch
+        return workItemId switch
         {
-            ".net" => CompletedPrLinkResponse(language),
+            "35000" => CompletedPrLinkResponse(),
             _ => MockToolFactory.GetDefaultResponse()
         };
     }
 
-    private static ReleaseWorkflowResponse CompletedPrLinkResponse(string language) => new()
+    private static ReleaseWorkflowResponse CompletedPrLinkResponse() => new()
     {
-        Language = SdkLanguageHelpers.GetSdkLanguage(language),
+        Language = SdkLanguage.DotNet,
         Status = "Completed",
         TypeSpecProject = "specification/contosowidgetmanager/Contoso.WidgetManager",
         Details =
         [
-            $"SDK pull request created for {language}",
-            $"PR URL: https://github.com/Azure/azure-sdk-for-net/pull/45001"
+            "SDK pull request created",
+            "PR URL: https://github.com/Azure/azure-sdk-for-net/pull/45001"
         ]
     };
 }

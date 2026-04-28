@@ -8,7 +8,7 @@ namespace Azure.Sdk.Tools.Mock.Handlers.ReleasePlan;
 
 /// <summary>
 /// Mock handler for azsdk_link_sdk_pull_request_to_release_plan.
-/// Switches on language — returns a linked response for known languages, default otherwise.
+/// Switches on pullRequestUrl — returns a linked response for the expected PR, default otherwise.
 /// </summary>
 public class LinkSdkPrToReleasePlanHandler : IMockToolHandler
 {
@@ -16,24 +16,23 @@ public class LinkSdkPrToReleasePlanHandler : IMockToolHandler
 
     public CommandResponse Handle(Dictionary<string, object?>? arguments)
     {
-        var language = arguments?.GetValueOrDefault("language")?.ToString() ?? "";
         var prUrl = arguments?.GetValueOrDefault("pullRequestUrl")?.ToString() ?? "";
 
-        return language.ToLowerInvariant() switch
+        return prUrl switch
         {
-            ".net" => LinkedPrResponse(language, prUrl),
+            "https://github.com/Azure/azure-sdk-for-net/pull/45001" => LinkedPrResponse(prUrl),
             _ => MockToolFactory.GetDefaultResponse()
         };
     }
 
-    private static ReleaseWorkflowResponse LinkedPrResponse(string language, string prUrl) => new()
+    private static ReleaseWorkflowResponse LinkedPrResponse(string prUrl) => new()
     {
-        Language = SdkLanguageHelpers.GetSdkLanguage(language),
+        Language = SdkLanguage.DotNet,
         Status = "Linked",
         TypeSpecProject = "specification/contosowidgetmanager/Contoso.WidgetManager",
         Details =
         [
-            $"SDK pull request linked to release plan for {language}",
+            "SDK pull request linked to release plan",
             $"PR: {prUrl}"
         ]
     };
