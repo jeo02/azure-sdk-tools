@@ -273,6 +273,13 @@ public class APIViewService : IAPIViewService
             var json = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(result);
             return json.GetProperty("url").GetString();
         }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new HttpRequestException(
+                "Received 403 Forbidden from APIView. Please make sure you are logged in to Azure (run 'az login') and connected to the Microsoft VPN.",
+                ex,
+                HttpStatusCode.Forbidden);
+        }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             return null;

@@ -261,6 +261,10 @@ namespace Azure.Sdk.Tools.Cli.Tools.Package
                                 }
                             }
                         }
+                        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                        {
+                            package.PackageReadinessDetails += $"Failed to retrieve APIView URL: {ex.Message} ";
+                        }
                         catch (Exception ex)
                         {
                             logger.LogWarning(ex, "Failed to resolve APIView URL for package '{PackageName}' in language '{Language}'.", packageName, language);
