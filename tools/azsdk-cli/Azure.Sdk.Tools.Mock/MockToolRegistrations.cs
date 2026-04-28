@@ -71,7 +71,7 @@ internal class MockMcpServerTool(McpServerTool innerTool, MockToolFactory factor
 
         return ValueTask.FromResult(new CallToolResult
         {
-            Content = [new TextContentBlock { Text = JsonSerializer.Serialize(response) }]
+            Content = [new TextContentBlock { Text = JsonSerializer.Serialize(response, response.GetType()) }]
         });
     }
 }
