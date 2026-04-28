@@ -6,6 +6,13 @@ using Azure.Sdk.Tools.Mock.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Bind Kestrel to loopback on a dynamic port so the mock server is truly stdio-only
+// and doesn't conflict with other services or expose an unintended HTTP endpoint.
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Listen(System.Net.IPAddress.Loopback, 0);
+});
+
 // Suppress noisy framework logging — mock server only needs minimal output
 builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
