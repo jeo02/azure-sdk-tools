@@ -31,7 +31,7 @@ public class MockToolFactory
     /// Produces the default mock response used when no custom handler is registered.
     /// Matches the shape of <c>DefaultCommandResponse</c> from the real CLI.
     /// </summary>
-    public static object GetDefaultResponse(string toolName)
+    public static object GetDefaultResponse()
     {
         return new
         {

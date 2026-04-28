@@ -30,12 +30,7 @@ public class HelloWorldHandler : IMockToolHandler
                 operation_status = "Succeeded",
                 duration = 30000
             },
-            _ => new
-            {
-                message = $"Hello, {message}!",
-                operation_status = "Succeeded",
-                duration = 1
-            }
+            _ => MockToolFactory.GetDefaultResponse()
         };
     }
 }

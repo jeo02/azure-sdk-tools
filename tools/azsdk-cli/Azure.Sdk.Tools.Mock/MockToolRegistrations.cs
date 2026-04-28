@@ -67,7 +67,7 @@ internal class MockMcpServerTool(McpServerTool innerTool, MockToolFactory factor
         var handler = factory.GetHandler(toolName);
         var response = handler != null
             ? handler.Handle(arguments)
-            : MockToolFactory.GetDefaultResponse(toolName);
+            : MockToolFactory.GetDefaultResponse();
 
         return ValueTask.FromResult(new CallToolResult
         {
