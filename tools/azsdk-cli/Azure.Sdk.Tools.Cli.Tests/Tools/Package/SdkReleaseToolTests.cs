@@ -139,5 +139,30 @@ namespace Azure.Sdk.Tools.Cli.Tests.Tools.Package
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ReleaseStatusDetails, Does.Contain("https://apiview.dev"));
         }
+
+        [Test]
+        public async Task TestCheckReadyWithApiViewNotApproved_Returns403Message()
+        {
+            var packageName = "Azure.Security.KeyVault.Secrets";
+            var language = ".NET";
+
+            devOpsService.ConfiguredAPIViewStatus = "Pending";
+            mockApiViewService
+                .Setup(x => x.GetReviewUrlByPackageAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new HttpRequestException(
+                    "Received 403 Forbidden from APIView. Please make sure you are logged in to Azure (run 'az login') and connected to the Microsoft VPN.",
+                    null,
+                    System.Net.HttpStatusCode.Forbidden));
+
+            var result = await sdkReleaseTool.ReleasePackageAsync(packageName, language, "main", checkReady: true);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.ReleaseStatusDetails, Does.Contain("not ready for release"));
+                Assert.That(result.ReleaseStatusDetails, Does.Contain("az login"));
+                Assert.That(result.ReleaseStatusDetails, Does.Contain("VPN"));
+            });
+        }
     }
 }
