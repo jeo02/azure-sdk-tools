@@ -1,5 +1,4 @@
 paths:
-  skills: ["skills/"]
   evals:
     - skill-authoring/evals/
     - azsdk-common-pipeline-troubleshooting/evals/
