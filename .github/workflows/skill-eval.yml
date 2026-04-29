@@ -68,7 +68,9 @@ jobs:
 
       - name: Install Vally CLI
         if: steps.changes.outputs.SHOULD_RUN == 'true'
-        run: npm install -g @microsoft/vally-cli
+        run: |
+          npm install -g @microsoft/vally-cli
+          npm install @github/copilot-sdk
 
       - name: Run evaluations
         if: steps.changes.outputs.SHOULD_RUN == 'true'
@@ -76,7 +78,7 @@ jobs:
         run: |
           cd .github/skills
           mkdir -p .vally/results
-          areas=$(ls -d */ 2>/dev/null | xargs -I{} basename {} | paste -sd, -)
+          areas=$(ls -d */ 2>/dev/null | xargs -I{} basename {} | grep -v '^results$' | paste -sd, -)
           if [ -n "$areas" ]; then
             vally eval --tag "priority=p0" --tag "area=${areas}" --output-dir ".vally/results"
           else

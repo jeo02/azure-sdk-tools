@@ -5,7 +5,7 @@ type: capability
 environment: azsdk-mcp-mock
 
 tags:
-  area: pipeline-troubleshooting
+  area: azsdk-common-pipeline-troubleshooting
   priority: p0
 
 config:

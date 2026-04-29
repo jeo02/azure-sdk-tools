@@ -5,7 +5,7 @@ type: capability
 environment: azsdk-mcp-mock
 
 tags:
-  area: generate-sdk-locally
+  area: azsdk-common-generate-sdk-locally
   priority: p0
 
 config:

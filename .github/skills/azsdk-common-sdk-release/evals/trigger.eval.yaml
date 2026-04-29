@@ -5,7 +5,7 @@ type: capability
 environment: azsdk-mcp-mock
 
 tags:
-  area: sdk-release
+  area: azsdk-common-sdk-release
   priority: p0
 
 config:

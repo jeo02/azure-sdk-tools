@@ -5,7 +5,7 @@ type: capability
 environment: azsdk-mcp-mock
 
 tags:
-  area: apiview-feedback-resolution
+  area: azsdk-common-apiview-feedback-resolution
   priority: p0
 
 config:
