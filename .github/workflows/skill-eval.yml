@@ -74,8 +74,9 @@ jobs:
         if: steps.changes.outputs.SHOULD_RUN == 'true'
         continue-on-error: true
         run: |
+          cd .github/skills
           mkdir -p .vally/results
-          areas=$(ls -d .github/skills/*/ 2>/dev/null | xargs -I{} basename {} | paste -sd, -)
+          areas=$(ls -d */ 2>/dev/null | xargs -I{} basename {} | paste -sd, -)
           if [ -n "$areas" ]; then
             vally eval --tag "priority=p0" --tag "area=${areas}" --output-dir ".vally/results"
           else
@@ -87,5 +88,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: eval-results-${{ github.run_id }}
-          path: .vally/results/
+          path: .github/skills/.vally/results/
           retention-days: 30
