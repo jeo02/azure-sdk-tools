@@ -77,6 +77,8 @@ jobs:
       - name: Run evaluations
         if: steps.changes.outputs.SHOULD_RUN == 'true'
         continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd .github/skills
           mkdir -p .vally/results
