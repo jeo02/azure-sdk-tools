@@ -1,0 +1,73 @@
+name: markdown-token-optimizer-trigger-eval
+description: Trigger and anti-trigger tests for the markdown-token-optimizer skill
+type: capability
+
+environment: azsdk-mcp-mock
+
+tags:
+  area: markdown-token-optimizer
+  priority: p0
+
+config:
+  runs: 1
+  timeout: 300
+  model: claude-opus-4.6
+  executor: copilot-sdk
+
+stimuli:
+  - name: trigger-optimize-markdown-for-token-efficiency
+    prompt: "optimize markdown for token efficiency"
+    graders:
+      - type: exit-success
+        config: {}
+  - name: trigger-reduce-tokens-in-my-skill-md
+    prompt: "reduce tokens in my SKILL.md"
+    graders:
+      - type: exit-success
+        config: {}
+  - name: trigger-my-file-has-too-many-tokens
+    prompt: "my file has too many tokens"
+    graders:
+      - type: exit-success
+        config: {}
+  - name: trigger-token-count-is-too-high
+    prompt: "token count is too high"
+    graders:
+      - type: exit-success
+        config: {}
+  - name: trigger-make-this-markdown-more-concise-for-ai
+    prompt: "make this markdown more concise for AI"
+    graders:
+      - type: exit-success
+        config: {}
+  - name: trigger-shrink-file-size-for-token-budget
+    prompt: "shrink file size for token budget"
+    graders:
+      - type: exit-success
+        config: {}
+
+  - name: anti-trigger-deploy-my-azure-function
+    prompt: "deploy my Azure Function"
+    graders:
+      - type: exit-success
+        config: {}
+  - name: anti-trigger-fix-my-pipeline-build-error
+    prompt: "fix my pipeline build error"
+    graders:
+      - type: exit-success
+        config: {}
+  - name: anti-trigger-create-a-new-typespec-definition
+    prompt: "create a new TypeSpec definition"
+    graders:
+      - type: exit-success
+        config: {}
+  - name: anti-trigger-how-do-i-release-an-sdk-package
+    prompt: "how do I release an SDK package"
+    graders:
+      - type: exit-success
+        config: {}
+  - name: anti-trigger-review-my-api-design
+    prompt: "review my API design"
+    graders:
+      - type: exit-success
+        config: {}

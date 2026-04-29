@@ -1,5 +1,5 @@
 ---
-name: azsdk-common-pipeline-troubleshooting
+name: pipeline-troubleshooting
 license: MIT
 metadata:
   version: "1.0.0"

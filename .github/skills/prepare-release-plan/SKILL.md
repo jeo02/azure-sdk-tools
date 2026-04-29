@@ -1,5 +1,5 @@
 ---
-name: azsdk-common-prepare-release-plan
+name: prepare-release-plan
 license: MIT
 metadata:
   version: "1.0.0"

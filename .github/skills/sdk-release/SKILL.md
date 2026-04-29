@@ -1,5 +1,5 @@
 ---
-name: azsdk-common-sdk-release
+name: sdk-release
 license: MIT
 metadata:
   version: "1.0.0"
