@@ -1,0 +1,62 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - .github/skills/**
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - .github/skills/**
+
+variables:
+  - group: 'AzSDK_Eval_Variable_group'
+
+stages:
+  - stage: RunEvals
+    displayName: 'Run Skill Evaluations'
+    jobs:
+      - job: Evaluate
+        displayName: 'Vally Eval'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+            fetchDepth: 0
+
+          - task: NodeTool@0
+            displayName: 'Use Node.js 22'
+            inputs:
+              versionSpec: '22.x'
+
+          - script: npm install -g @microsoft/vally-cli
+            displayName: 'Install Vally CLI'
+
+          - script: npm install -g @github/copilot-sdk
+            displayName: 'Install Copilot SDK'
+
+          - script: |
+              cd .github/skills
+              mkdir -p .vally/results
+              areas=$(ls -d */ 2>/dev/null | xargs -I{} basename {} | grep -v '^results$' | paste -sd, -)
+              if [ -n "$areas" ]; then
+                vally eval --tag "priority=p0" --tag "area=${areas}" --output-dir ".vally/results"
+              else
+                echo "No skills found — skipping"
+              fi
+            displayName: 'Run evaluations'
+            continueOnError: true
+            env:
+              GITHUB_TOKEN: $(azuresdk-copilot-github-pat)
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Upload eval results'
+            condition: always()
+            inputs:
+              targetPath: '.github/skills/.vally/results'
+              artifactName: 'eval-results-$(Build.BuildId)'
