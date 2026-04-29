@@ -1,0 +1,19 @@
+name: echo-test
+description: Simple eval that asks the agent to run "echo something" in PowerShell
+version: "1.0"
+type: capability
+
+config:
+  runs: 1
+  timeout: 120
+
+stimuli:
+  - name: run-echo
+    prompt: "Run this PowerShell command: echo something"
+    graders:
+      - type: run-command
+        config:
+          command: powershell
+          args: ["-Command", "echo something"]
+          expected_exit_code: 0
+          stdout_contains: "something"
