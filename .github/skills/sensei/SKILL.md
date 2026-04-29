@@ -226,5 +226,5 @@ sensei: improve {skill-name} frontmatter
 
 ## Related Skills
 
-- [markdown-token-optimizer](/.github/skills/markdown-token-optimizer) - Token analysis and optimization
-- [skill-authoring](/.github/skills/skill-authoring) - Skill writing guidelines
+- [markdown-token-optimizer](../markdown-token-optimizer) - Token analysis and optimization
+- [skill-authoring](../skill-authoring) - Skill writing guidelines

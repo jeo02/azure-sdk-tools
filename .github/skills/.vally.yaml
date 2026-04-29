@@ -2,13 +2,13 @@ paths:
   skills: ["skills/"]
   evals:
     - skill-authoring/evals/
-    - pipeline-troubleshooting/evals/
+    - azsdk-common-pipeline-troubleshooting/evals/
     - markdown-token-optimizer/evals/
     - sensei/evals/
-    - generate-sdk-locally/evals/
-    - sdk-release/evals/
-    - apiview-feedback-resolution/evals/
-    - prepare-release-plan/evals/
+    - azsdk-common-generate-sdk-locally/evals/
+    - azsdk-common-sdk-release/evals/
+    - azsdk-common-apiview-feedback-resolution/evals/
+    - azsdk-common-prepare-release-plan/evals/
   results: results/
   evalFilenames: ["eval.yaml", "*.eval.yaml"]
 
@@ -18,7 +18,7 @@ environments:
       azure-sdk-mcp:
         type: stdio
         command: dotnet
-        args: ["run", "--project", "C:\\Users\\juanospina\\source\\repos\\azure-sdk-tools\\tools\\azsdk-cli\\Azure.Sdk.Tools.Cli", "--", "start"]
+        args: ["run", "--project", "../../tools/azsdk-cli/Azure.Sdk.Tools.Cli", "--", "start"]
         timeout: 30000
         env:
           AZSDKTOOLS_AGENT_TESTING: "true"
@@ -39,5 +39,3 @@ suites:
     filter: { priority: [p0, p1] }
   local:
     filter: { priority: [p0, p1, p2] }
-  test:
-    filter: { area: [prepare-release-plan] }
