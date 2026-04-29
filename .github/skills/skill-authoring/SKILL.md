@@ -26,7 +26,7 @@ compatibility: "copilot-chat"
 
 ## Progressive Disclosure
 
-Metadata loads at startup. SKILL.md on activation. References load when linked via `[text](references/example.md)`.
+Metadata loads at startup. SKILL.md on activation. References load when linked via markdown link.
 
 ## MCP Tools
 
