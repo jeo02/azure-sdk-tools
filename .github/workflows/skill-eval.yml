@@ -77,7 +77,7 @@ jobs:
           mkdir -p .vally/results
           areas=$(ls -d .github/skills/*/ 2>/dev/null | xargs -I{} basename {} | paste -sd, -)
           if [ -n "$areas" ]; then
-            vally eval --suite ci-gate --tag "area=${areas}" --output-dir ".vally/results"
+            vally eval --tag "priority=p0" --tag "area=${areas}" --output-dir ".vally/results"
           else
             echo "No skills found — skipping"
           fi
